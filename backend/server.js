@@ -10,9 +10,6 @@ const initializeSocketService = require('./services/socketService');
 // Load environment variables
 dotenv.config();
 
-// Connect to MongoDB
-connectDB();
-
 const app = express();
 const server = http.createServer(app);
 
@@ -41,6 +38,32 @@ app.use('/api/logistics', require('./routes/logisticsRoutes'));
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+server.on('error', (error) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(
+      `Port ${PORT} is already in use. Stop the existing backend server or set a different PORT in backend/.env.`
+    );
+    process.exit(1);
+  }
+
+  console.error('Server failed to start:', error.message);
+  process.exit(1);
+});
+
+const startServer = async () => {
+  await connectDB();
+
+  if (process.env.NODE_ENV !== 'production') {
+    const seedDemoData = require('./utils/seedDemoData');
+    await seedDemoData();
+  }
+
+  server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+};
+
+startServer().catch((error) => {
+  console.error('Server startup failed:', error.message);
+  process.exit(1);
 });
