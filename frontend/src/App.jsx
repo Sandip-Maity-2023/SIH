@@ -13,19 +13,7 @@ import Footer from './components/common/Footer';
 import Marketplace from './pages/Marketplace';
 import FPODashboard from './pages/FPODashboard';
 import LogisticsMap from './pages/LogisticsMap';
-
-// Placeholder Auth Pages for full route completion
-const LoginPlaceholder = () => (
-  <div className="min-h-[70vh] flex items-center justify-center">
-    <div className="bg-white p-8 rounded-xl shadow-md border text-center max-w-sm w-full">
-      <h2 className="text-2xl font-bold mb-4 text-emerald-800">Account Login</h2>
-      <p className="text-sm text-gray-500 mb-6">Enter your registered credentials to access your portal.</p>
-      <input type="email" placeholder="Email Address" className="w-full mb-3 px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-emerald-500" />
-      <input type="password" placeholder="Password" className="w-full mb-4 px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-emerald-500" />
-      <button className="w-full bg-emerald-600 text-white font-bold py-2 rounded-lg text-sm hover:bg-emerald-700 transition">Sign In</button>
-    </div>
-  </div>
-);
+import AuthPage from './pages/AuthPage';
 
 // Protected Route Guard Wrapper
 const ProtectedRoute = ({ children }) => {
@@ -47,7 +35,8 @@ function AppRoutes() {
           {/* Public Routes */}
           <Route path="/" element={<Navigate to="/marketplace" replace />} />
           <Route path="/marketplace" element={<Marketplace />} />
-          <Route path="/login" element={<LoginPlaceholder />} />
+          <Route path="/login" element={<AuthPage mode="login" />} />
+          <Route path="/register" element={<AuthPage mode="register" />} />
 
           {/* FPO Pooling Portal */}
           <Route
