@@ -1,0 +1,6 @@
+npm install --save-dev nodemon
+
+npm init -y: Initializes a new Node.js project and generates a package.json file automatically.
+npm install express mongoose dotenv cors: Installs the fundamental backend libraries.
+ npm install react-router-dom
+ 
