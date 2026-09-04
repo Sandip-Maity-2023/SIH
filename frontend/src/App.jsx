@@ -14,6 +14,8 @@ import Marketplace from './pages/Marketplace';
 import FPODashboard from './pages/FPODashboard';
 import LogisticsMap from './pages/LogisticsMap';
 import AuthPage from './pages/AuthPage';
+import CropDetails from './pages/CropDetails';
+import BuyerDashboard from './pages/BuyerDashboard';
 
 // Protected Route Guard Wrapper
 const ProtectedRoute = ({ children }) => {
@@ -35,8 +37,18 @@ function AppRoutes() {
           {/* Public Routes */}
           <Route path="/" element={<Navigate to="/marketplace" replace />} />
           <Route path="/marketplace" element={<Marketplace />} />
+          <Route path="/crops/:id" element={<CropDetails />} />
           <Route path="/login" element={<AuthPage mode="login" />} />
           <Route path="/register" element={<AuthPage mode="register" />} />
+
+          <Route
+            path="/buyer-dashboard"
+            element={
+              <ProtectedRoute>
+                <BuyerDashboard />
+              </ProtectedRoute>
+            }
+          />
 
           {/* FPO Pooling Portal */}
           <Route

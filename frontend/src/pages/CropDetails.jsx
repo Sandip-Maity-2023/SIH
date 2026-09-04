@@ -43,21 +43,29 @@ const CropDetails = () => {
   const handlePurchase = async (e) => {
     e.preventDefault();
     if (!user) {
-      navigate('/auth');
+      navigate('/login');
       return;
     }
 
     setOrderProcessing(true);
     try {
       const orderPayload = {
-        cropLotId: crop._id,
-        farmerId: crop.farmer._id || crop.farmer,
-        quantityKg: Number(orderQuantity),
+        items: [
+          {
+            cropLotId: crop._id,
+            farmerId: crop.farmer?._id || crop.farmerId?._id || crop.farmerId,
+            quantityKg: Number(orderQuantity),
+            pricePerKg: crop.pricePerKg,
+            subtotal: Number(orderQuantity) * crop.pricePerKg,
+          },
+        ],
         totalAmount: Number(orderQuantity) * crop.pricePerKg,
+        deliveryAddress: user.location?.address || {},
+        transactionReference: `DEMO-${Date.now()}`,
       };
 
       const { data } = await createOrder(orderPayload);
-      alert(`Order Created! Escrow Payment ID: ${data.order.escrowPaymentId}`);
+      alert(`Order created. Escrow locked for order ${data.order?._id?.slice(0, 8) || data.data?._id?.slice(0, 8)}.`);
       navigate('/buyer-dashboard');
     } catch (err) {
       alert(err.response?.data?.message || 'Error executing escrow purchase');

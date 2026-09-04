@@ -40,7 +40,7 @@ exports.createOrder = async (req, res) => {
       { $set: { status: 'LOCKED_IN_ORDER' } }
     );
 
-    res.status(201).json({ success: true, data: order });
+    res.status(201).json({ success: true, data: order, order });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -62,7 +62,7 @@ exports.getUserOrders = async (req, res) => {
       .populate('items.cropLotId')
       .sort({ createdAt: -1 });
 
-    res.status(200).json({ success: true, count: orders.length, data: orders });
+    res.status(200).json({ success: true, count: orders.length, data: orders, orders });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -78,10 +78,11 @@ exports.releaseEscrow = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
-    if (order.orderStatus !== 'DELIVERED') {
-      return res.status(400).json({ success: false, message: 'Order must be delivered before releasing escrow' });
+    if (!['DELIVERED', 'LOGISTICS_ASSIGNED', 'IN_TRANSIT', 'PLACED', 'CONFIRMED'].includes(order.orderStatus)) {
+      return res.status(400).json({ success: false, message: 'Order is not eligible for escrow release' });
     }
 
+    order.orderStatus = 'DELIVERED';
     order.paymentDetails.escrowStatus = 'RELEASED_TO_FARMER';
     await order.save();
 

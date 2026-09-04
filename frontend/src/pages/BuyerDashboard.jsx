@@ -11,7 +11,7 @@ const BuyerDashboard = () => {
     try {
       setLoading(true);
       const { data } = await getUserOrders();
-      setOrders(data.orders || []);
+      setOrders(data.orders || data.data || []);
     } catch (err) {
       console.error('Failed to fetch orders:', err);
     } finally {
@@ -51,14 +51,14 @@ const BuyerDashboard = () => {
             <p className="text-2xl font-bold text-gray-800">
               ₹
               {orders
-                .filter((o) => o.status === 'LOCKED_IN_ESCROW')
+                .filter((o) => o.paymentDetails?.escrowStatus === 'LOCKED_IN_ESCROW')
                 .reduce((acc, curr) => acc + curr.totalAmount, 0)}
             </p>
           </div>
           <div className="bg-white p-5 rounded-xl shadow border-l-4 border-blue-500">
             <span className="text-xs text-gray-500 uppercase font-semibold">Completed Deliveries</span>
             <p className="text-2xl font-bold text-gray-800">
-              {orders.filter((o) => o.status === 'DELIVERED').length}
+              {orders.filter((o) => o.orderStatus === 'DELIVERED').length}
             </p>
           </div>
         </div>
@@ -91,25 +91,25 @@ const BuyerDashboard = () => {
                     <tr key={order._id} className="hover:bg-gray-50">
                       <td className="p-4 font-mono text-xs">{order._id.substring(0, 8)}...</td>
                       <td className="p-4 font-semibold text-gray-800 capitalize">
-                        {order.cropLot?.cropType || 'Produce'}
+                        {order.items?.[0]?.cropLotId?.cropName || 'Produce'}
                       </td>
-                      <td className="p-4">{order.quantityKg} kg</td>
+                      <td className="p-4">{order.items?.reduce((sum, item) => sum + item.quantityKg, 0) || 0} kg</td>
                       <td className="p-4 font-bold">₹{order.totalAmount}</td>
                       <td className="p-4">
                         <span
                           className={`px-2.5 py-1 text-xs font-bold rounded-full ${
-                            order.status === 'RELEASED'
+                            order.paymentDetails?.escrowStatus === 'RELEASED_TO_FARMER'
                               ? 'bg-green-100 text-green-800'
-                              : order.status === 'LOCKED_IN_ESCROW'
+                              : order.paymentDetails?.escrowStatus === 'LOCKED_IN_ESCROW'
                               ? 'bg-amber-100 text-amber-800'
                               : 'bg-gray-100 text-gray-800'
                           }`}
                         >
-                          {order.status}
+                          {order.paymentDetails?.escrowStatus || order.orderStatus}
                         </span>
                       </td>
                       <td className="p-4">
-                        {order.status === 'LOCKED_IN_ESCROW' && (
+                        {order.paymentDetails?.escrowStatus === 'LOCKED_IN_ESCROW' && (
                           <button
                             onClick={() =>
                               setOtpModal({ open: true, orderId: order._id, otp: '' })

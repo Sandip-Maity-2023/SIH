@@ -1,5 +1,5 @@
-const CropLot = require('../models/CropLot');
-const LogisticsTrip = require('../models/LogisticsTrip');
+const CropLot = require('../models/Crop');
+const LogisticsTrip = require('../models/Trip');
 const User = require('../models/User');
 
 const point = (longitude, latitude, address = {}) => ({

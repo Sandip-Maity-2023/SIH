@@ -6,6 +6,8 @@ const {
   getCropLots,
   getCropLotById,
   poolCropLots,
+  placeBid,
+  updateBidStatus,
 } = require('../controllers/cropController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
@@ -13,6 +15,8 @@ const upload = require('../middleware/uploadMiddleware');
 // Public route to view available crops with optional filters
 router.get('/', getCropLots);
 router.get('/:id', getCropLotById);
+router.post('/:id/bids', protect, authorize('BUYER'), placeBid);
+router.put('/:cropId/bids/:bidId', protect, authorize('FARMER', 'FPO', 'ADMIN'), updateBidStatus);
 
 // Protected routes (Farmers & FPOs only)
 router.post(

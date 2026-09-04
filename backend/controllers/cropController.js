@@ -26,22 +26,28 @@ const formatCrop = (crop) => {
 // @route   POST /api/crops
 exports.createCropLot = async (req, res) => {
   try {
-    const { cropName, category, quantityKg, expectedPricePerKg, harvestDate, images, pickupLocation, voiceNoteUrl, fpoId } = req.body;
+    const { cropName, cropType, category, quantityKg, expectedPricePerKg, pricePerKg, harvestDate, images, pickupLocation, location, voiceNoteUrl, fpoId } = req.body;
+    const userAddress = req.user.location?.address || {};
+    const normalizedLocation = pickupLocation || {
+      type: 'Point',
+      coordinates: req.user.location?.coordinates || [73.7898, 20.0063],
+      farmAddress: location?.address || [userAddress.villageOrCity, userAddress.district, userAddress.state].filter(Boolean).join(', '),
+    };
 
     const cropLot = await CropLot.create({
       farmerId: req.user.id,
       fpoId: fpoId || undefined,
-      cropName,
+      cropName: cropName || cropType,
       category,
       quantityKg,
-      expectedPricePerKg,
-      harvestDate,
+      expectedPricePerKg: expectedPricePerKg || pricePerKg,
+      harvestDate: harvestDate || new Date(),
       images,
-      pickupLocation,
+      pickupLocation: normalizedLocation,
       voiceNoteUrl,
     });
 
-    res.status(201).json({ success: true, data: cropLot });
+    res.status(201).json({ success: true, data: formatCrop(cropLot), crop: formatCrop(cropLot) });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -119,6 +125,92 @@ exports.poolCropLots = async (req, res) => {
     );
 
     res.status(200).json({ success: true, message: 'Crop lots successfully pooled under FPO' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.placeBid = async (req, res) => {
+  try {
+    const { bidAmountPerKg, quantityKg, message } = req.body;
+    const crop = await CropLot.findById(req.params.id);
+
+    if (!crop) {
+      return res.status(404).json({ success: false, message: 'Crop lot not found' });
+    }
+
+    if (!['AVAILABLE', 'POOLED'].includes(crop.status)) {
+      return res.status(400).json({ success: false, message: 'Crop lot is not open for bidding' });
+    }
+
+    const bid = {
+      buyerId: req.user.id,
+      bidAmountPerKg,
+      quantityKg: quantityKg || crop.quantityKg,
+      message,
+      status: 'PENDING',
+    };
+
+    crop.bids.push(bid);
+    await crop.save();
+    await crop.populate('bids.buyerId', 'name phone role');
+
+    const savedBid = crop.bids[crop.bids.length - 1];
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`auction_${crop._id}`).emit('newBidReceived', {
+        cropLotId: crop._id,
+        bid: savedBid,
+      });
+    }
+
+    res.status(201).json({ success: true, data: savedBid, bid: savedBid });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.updateBidStatus = async (req, res) => {
+  try {
+    const { status, counterAmountPerKg } = req.body;
+    const crop = await CropLot.findById(req.params.cropId);
+
+    if (!crop) {
+      return res.status(404).json({ success: false, message: 'Crop lot not found' });
+    }
+
+    if (crop.farmerId.toString() !== req.user.id && crop.fpoId?.toString() !== req.user.id && req.user.role !== 'ADMIN') {
+      return res.status(403).json({ success: false, message: 'Only the farmer or FPO can manage bids for this lot' });
+    }
+
+    const bid = crop.bids.id(req.params.bidId);
+    if (!bid) {
+      return res.status(404).json({ success: false, message: 'Bid not found' });
+    }
+
+    bid.status = status;
+    if (counterAmountPerKg) bid.counterAmountPerKg = counterAmountPerKg;
+
+    if (status === 'ACCEPTED') {
+      crop.status = 'LOCKED_IN_ORDER';
+      crop.bids.forEach((item) => {
+        if (item._id.toString() !== bid._id.toString() && item.status === 'PENDING') {
+          item.status = 'REJECTED';
+        }
+      });
+    }
+
+    await crop.save();
+
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`auction_${crop._id}`).emit('bidStatusUpdated', {
+        cropLotId: crop._id,
+        bid,
+      });
+    }
+
+    res.status(200).json({ success: true, data: bid, bid });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

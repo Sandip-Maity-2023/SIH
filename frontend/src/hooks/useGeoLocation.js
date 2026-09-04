@@ -1,12 +1,14 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+
+const EMPTY_OPTIONS = {};
 
 /**
  * Custom hook to track real-time or single-shot GPS coordinates.
  * @param {Object} options - Geolocation API options (highAccuracy, timeout, maximumAge)
  * @param {boolean} watch - Whether to continuously stream position changes
  */
-const useGeoLocation = (options = {}, watch = false) => {
+const useGeoLocation = (options = EMPTY_OPTIONS, watch = false) => {
   const [location, setLocation] = useState({
     latitude: null,
     longitude: null,
@@ -18,12 +20,12 @@ const useGeoLocation = (options = {}, watch = false) => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const defaultOptions = {
+  const defaultOptions = useMemo(() => ({
     enableHighAccuracy: true,
     timeout: 15000,
     maximumAge: 0,
     ...options,
-  };
+  }), [options]);
 
   const onSuccess = useCallback((position) => {
     setLocation({

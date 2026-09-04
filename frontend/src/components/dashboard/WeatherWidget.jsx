@@ -1,13 +1,13 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 const WeatherWidget = ({ location = 'Nashik' }) => {
-  const [weather, setWeather] = useState({
+  const weather = {
     temp: '28°C',
     condition: 'Partly Cloudy',
     humidity: '64%',
     wind: '12 km/h',
-  });
+  };
 
   return (
     <div className="bg-gradient-to-br from-emerald-600 to-teal-800 text-white p-5 rounded-xl shadow-sm">

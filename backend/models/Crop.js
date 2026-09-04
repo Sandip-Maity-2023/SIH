@@ -70,6 +70,21 @@ const cropLotSchema = new mongoose.Schema(
       enum: ['AVAILABLE', 'POOLED', 'LOCKED_IN_ORDER', 'SOLD', 'CANCELLED'],
       default: 'AVAILABLE',
     },
+    bids: [
+      {
+        buyerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+        bidAmountPerKg: { type: Number, required: true },
+        quantityKg: { type: Number, required: true },
+        message: String,
+        status: {
+          type: String,
+          enum: ['PENDING', 'ACCEPTED', 'REJECTED', 'COUNTERED'],
+          default: 'PENDING',
+        },
+        counterAmountPerKg: Number,
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
   },
   { timestamps: true }
 );
