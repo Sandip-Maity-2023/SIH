@@ -137,10 +137,16 @@ const normalizeLocation = (location = {}) => {
 const buildUserPayload = (user) => ({
   _id: user._id,
   name: user.name,
-  phone: user.phone,
+  fullName: user.name,
+  phone: user.phone || user.phoneNumber,
+  phoneNumber: user.phoneNumber || user.phone,
   email: user.email,
   role: user.role,
   location: user.location,
+  avatarUrl: user.avatarUrl || '',
+  bankDetails: user.bankDetails || {},
+  documents: user.documents || [],
+  kycVerified: user.kycVerified || false,
   token: generateToken(user._id),
 });
 
@@ -148,22 +154,33 @@ const buildUserPayload = (user) => ({
 // @route   POST /api/auth/register
 export const registerUser = async (req, res) => {
   try {
-    const { name, phone, email, role, languagePreference, location, fpoDetails, driverDetails } = req.body;
+    const { name, phone, phoneNumber, email, password, role, languagePreference, location, fpoDetails, driverDetails } = req.body;
+    const targetPhone = phone || phoneNumber;
 
-    const userExists = await User.findOne({ phone });
+    if (!targetPhone) {
+      return res.status(400).json({ success: false, message: 'Phone number is required' });
+    }
+
+    const userExists = await User.findOne({
+      $or: [{ phone: targetPhone }, { phoneNumber: targetPhone }],
+    });
     if (userExists) {
       return res.status(400).json({ success: false, message: 'User with this phone number already exists' });
     }
 
+    const normalizedRole = (role || 'FARMER').toUpperCase();
+
     const user = await User.create({
       name,
-      phone,
-      email,
-      role: role || 'FARMER',
+      phone: targetPhone,
+      phoneNumber: targetPhone,
+      email: email || undefined,
+      password: password || undefined,
+      role: normalizedRole,
       languagePreference: languagePreference || 'hi',
       location: normalizeLocation(location),
-      fpoDetails: role === 'FPO' ? fpoDetails : undefined,
-      driverDetails: role === 'DRIVER' ? driverDetails : undefined,
+      fpoDetails: normalizedRole === 'FPO' ? fpoDetails : undefined,
+      driverDetails: normalizedRole === 'DRIVER' || normalizedRole === 'LOGISTICS' ? driverDetails : undefined,
     });
 
     const payload = buildUserPayload(user);
@@ -179,15 +196,32 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// @desc    Login user via phone number
+// @desc    Login user via phone number or email and optional password
 // @route   POST /api/auth/login
 export const loginUser = async (req, res) => {
   try {
-    const { phone } = req.body;
+    const { phone, phoneNumber, email, password } = req.body;
+    const targetPhone = phone || phoneNumber;
 
-    const user = await User.findOne({ phone });
+    let query = {};
+    if (targetPhone) {
+      query = { $or: [{ phone: targetPhone }, { phoneNumber: targetPhone }] };
+    } else if (email) {
+      query = { email: email.toLowerCase() };
+    } else {
+      return res.status(400).json({ success: false, message: 'Phone number or email is required for login' });
+    }
+
+    const user = await User.findOne(query);
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found. Please register first.' });
+    }
+
+    if (password && user.password) {
+      const isMatch = await user.matchPassword(password);
+      if (!isMatch) {
+        return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      }
     }
 
     const payload = buildUserPayload(user);
@@ -211,7 +245,8 @@ export const getUserProfile = async (req, res) => {
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
-    res.status(200).json({ success: true, data: user });
+    const payload = buildUserPayload(user);
+    res.status(200).json({ success: true, data: user, user: payload });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -221,14 +256,17 @@ export const getUserProfile = async (req, res) => {
 // @route   PUT /api/auth/profile
 export const updateUserProfile = async (req, res) => {
   try {
-    const { name, fullName, phone, email, languagePreference, location } = req.body;
+    const { name, fullName, phone, email, languagePreference, location, avatarUrl, bankDetails, documents } = req.body;
 
     const updates = {
       ...(name || fullName ? { name: name || fullName } : {}),
-      ...(phone ? { phone } : {}),
+      ...(phone ? { phone, phoneNumber: phone } : {}),
       ...(email ? { email } : {}),
       ...(languagePreference ? { languagePreference } : {}),
       ...(location ? { location: normalizeLocation(location) } : {}),
+      ...(avatarUrl !== undefined ? { avatarUrl } : {}),
+      ...(bankDetails ? { bankDetails } : {}),
+      ...(documents ? { documents } : {}),
     };
 
     const user = await User.findByIdAndUpdate(req.user.id, updates, {
@@ -240,7 +278,8 @@ export const updateUserProfile = async (req, res) => {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    return res.status(200).json({ success: true, data: user });
+    const payload = buildUserPayload(user);
+    return res.status(200).json({ success: true, data: user, user: payload });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }

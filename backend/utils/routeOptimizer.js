@@ -71,7 +71,9 @@ const optimizePickupRoute = (waypoints = [], startLocation = [73.7898, 20.0063])
   };
 };
 
-module.exports = {
+export {
   calculateHaversineDistance,
   optimizePickupRoute,
 };
+
+export default optimizePickupRoute;

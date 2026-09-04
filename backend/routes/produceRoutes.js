@@ -1,5 +1,4 @@
 import express from 'express';
-import passport from 'passport';
 
 // Import Produce Controllers
 import {
@@ -11,13 +10,10 @@ import {
   placeBid,
 } from '../controllers/produceController.js';
 
-// Import Role Authorization Middleware
-import { authorizeRoles } from '../middleware/authMiddleware.js';
+// Import Authorization Middleware
+import { protect, authorizeRoles } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
-
-// Passport JWT Authentication Guard
-const requireAuth = passport.authenticate('jwt', { session: false });
 
 /**
  * @route   POST /api/produce
@@ -26,8 +22,8 @@ const requireAuth = passport.authenticate('jwt', { session: false });
  */
 router.post(
   '/',
-  requireAuth,
-  authorizeRoles('farmer', 'fpo'),
+  protect,
+  authorizeRoles('farmer', 'fpo', 'admin'),
   createProduce
 );
 
@@ -58,7 +54,7 @@ router.get(
  */
 router.put(
   '/:id',
-  requireAuth,
+  protect,
   authorizeRoles('farmer', 'fpo', 'admin'),
   updateProduce
 );
@@ -70,7 +66,7 @@ router.put(
  */
 router.delete(
   '/:id',
-  requireAuth,
+  protect,
   authorizeRoles('farmer', 'fpo', 'admin'),
   deleteProduce
 );
@@ -82,8 +78,8 @@ router.delete(
  */
 router.post(
   '/:id/bids',
-  requireAuth,
-  authorizeRoles('buyer'),
+  protect,
+  authorizeRoles('buyer', 'consumer', 'bulk_buyer', 'admin'),
   placeBid
 );
 

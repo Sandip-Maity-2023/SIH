@@ -1,7 +1,5 @@
-
-
-const cloudinary = require('cloudinary').v2;
-const fs = require('fs');
+import { v2 as cloudinary } from 'cloudinary';
+import fs from 'fs';
 
 // Configure Cloudinary credentials from process.env
 cloudinary.config({
@@ -16,7 +14,7 @@ cloudinary.config({
  * @param {string} folder - Folder name in Cloudinary (e.g., 'produce', 'voice_queries').
  * @returns {Promise<object>} Upload response containing secure_url and public_id.
  */
-const uploadToCloudinary = async (localFilePath, folder = 'agri_platform') => {
+export const uploadToCloudinary = async (localFilePath, folder = 'agri_platform') => {
   try {
     if (!localFilePath) return null;
 
@@ -51,7 +49,7 @@ const uploadToCloudinary = async (localFilePath, folder = 'agri_platform') => {
  * @param {string} publicId - The public ID of the resource in Cloudinary.
  * @param {string} resourceType - Type of resource ('image', 'video', or 'raw').
  */
-const deleteFromCloudinary = async (publicId, resourceType = 'image') => {
+export const deleteFromCloudinary = async (publicId, resourceType = 'image') => {
   try {
     if (!publicId) return null;
     return await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
@@ -60,8 +58,5 @@ const deleteFromCloudinary = async (publicId, resourceType = 'image') => {
   }
 };
 
-module.exports = {
-  cloudinary,
-  uploadToCloudinary,
-  deleteFromCloudinary,
-};
+export { cloudinary };
+export default cloudinary;

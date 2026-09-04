@@ -1,5 +1,4 @@
 import express from 'express';
-import passport from 'passport';
 
 // Import Payout Controllers
 import {
@@ -8,13 +7,10 @@ import {
   updatePayoutStatus,
 } from '../controllers/payoutController.js';
 
-// Import Role Authorization Middleware
-import { authorizeRoles } from '../middleware/authMiddleware.js';
+// Import Authorization Middleware
+import { protect, authorizeRoles } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
-
-// Passport JWT Authentication Guard
-const requireAuth = passport.authenticate('jwt', { session: false });
 
 /**
  * @route   POST /api/payouts
@@ -23,7 +19,7 @@ const requireAuth = passport.authenticate('jwt', { session: false });
  */
 router.post(
   '/',
-  requireAuth,
+  protect,
   authorizeRoles('admin'),
   initiatePayout
 );
@@ -35,8 +31,8 @@ router.post(
  */
 router.get(
   '/',
-  requireAuth,
-  authorizeRoles('farmer', 'admin'),
+  protect,
+  authorizeRoles('farmer', 'fpo', 'admin'),
   getPayouts
 );
 
@@ -47,7 +43,7 @@ router.get(
  */
 router.put(
   '/:id/status',
-  requireAuth,
+  protect,
   authorizeRoles('admin'),
   updatePayoutStatus
 );

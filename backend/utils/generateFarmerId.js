@@ -8,4 +8,5 @@ const generateFarmerId = () => {
   return `FAR-${year}-${randomDigits}`;
 };
 
-module.exports = generateFarmerId;
+export { generateFarmerId };
+export default generateFarmerId;

@@ -96,15 +96,19 @@ const orderSchema = new mongoose.Schema(
     orderStatus: {
       type: String,
       enum: [
+        'PLACED',
         'PENDING_PAYMENT',
+        'CONFIRMED',
         'ESCROW_HOLD',
+        'LOGISTICS_ASSIGNED',
+        'IN_TRANSIT',
         'DISPATCHED',
         'DELIVERED',
         'DISPUTED',
         'COMPLETED',
         'CANCELLED',
       ],
-      default: 'PENDING_PAYMENT',
+      default: 'PLACED',
     },
 
     logisticsTripId: {

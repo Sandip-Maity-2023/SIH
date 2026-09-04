@@ -1,5 +1,4 @@
 import express from 'express';
-import passport from 'passport';
 
 // Import Dispute Controllers
 import {
@@ -8,13 +7,10 @@ import {
   resolveDispute,
 } from '../controllers/disputeController.js';
 
-// Import Role Authorization Middleware
-import { authorizeRoles } from '../middleware/authMiddleware.js';
+// Import Authorization Middleware
+import { protect, authorizeRoles } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
-
-// Passport JWT Authentication Guard
-const requireAuth = passport.authenticate('jwt', { session: false });
 
 /**
  * @route   POST /api/disputes
@@ -23,7 +19,7 @@ const requireAuth = passport.authenticate('jwt', { session: false });
  */
 router.post(
   '/',
-  requireAuth,
+  protect,
   createDispute
 );
 
@@ -34,7 +30,7 @@ router.post(
  */
 router.get(
   '/',
-  requireAuth,
+  protect,
   getDisputes
 );
 
@@ -45,7 +41,7 @@ router.get(
  */
 router.put(
   '/:id/resolve',
-  requireAuth,
+  protect,
   authorizeRoles('admin'),
   resolveDispute
 );

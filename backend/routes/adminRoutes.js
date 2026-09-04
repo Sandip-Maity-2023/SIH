@@ -1,5 +1,4 @@
 import express from 'express';
-import passport from 'passport';
 
 // Import Admin Controllers
 import {
@@ -10,13 +9,10 @@ import {
   verifyUserKyc,
 } from '../controllers/adminController.js';
 
-// Import Role Authorization Middleware
-import { authorizeRoles } from '../middleware/authMiddleware.js';
+// Import Authorization Middleware
+import { protect, authorizeRoles } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
-
-// Passport JWT Authentication Guard
-const requireAuth = passport.authenticate('jwt', { session: false });
 
 /**
  * @route   GET /api/admin/analytics
@@ -25,7 +21,7 @@ const requireAuth = passport.authenticate('jwt', { session: false });
  */
 router.get(
   '/analytics',
-  requireAuth,
+  protect,
   authorizeRoles('admin'),
   getAnalytics
 );
@@ -37,7 +33,7 @@ router.get(
  */
 router.get(
   '/settings',
-  requireAuth,
+  protect,
   authorizeRoles('admin'),
   getSettings
 );
@@ -49,7 +45,7 @@ router.get(
  */
 router.put(
   '/settings',
-  requireAuth,
+  protect,
   authorizeRoles('admin'),
   updateSettings
 );
@@ -61,7 +57,7 @@ router.put(
  */
 router.get(
   '/kyc/pending',
-  requireAuth,
+  protect,
   authorizeRoles('admin'),
   getPendingKycUsers
 );
@@ -73,7 +69,7 @@ router.get(
  */
 router.put(
   '/kyc/verify/:userId',
-  requireAuth,
+  protect,
   authorizeRoles('admin'),
   verifyUserKyc
 );

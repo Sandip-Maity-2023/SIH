@@ -7,29 +7,49 @@ export const createProduce = async (req, res) => {
   try {
     const {
       cropName,
+      title,
       category,
+      cropCategory,
+      variety,
+      grade,
       quantityKg,
+      quantityAvailable,
       expectedPricePerKg,
+      pricePerKg,
       harvestDate,
       images,
+      image,
       aiQualityGrade,
       voiceNoteUrl,
       pickupLocation,
+      location,
       fpoId,
     } = req.body;
+
+    const finalCropName = cropName || title || 'Fresh Produce';
+    const finalCategory = category || cropCategory || 'Vegetables';
+    const finalPrice = Number(expectedPricePerKg || pricePerKg || 0);
+    const finalQuantity = Number(quantityKg || quantityAvailable || 0);
 
     const produce = await Produce.create({
       farmerId: req.user.id,
       fpoId: fpoId || undefined,
-      cropName,
-      category,
-      quantityKg,
-      expectedPricePerKg,
+      cropName: finalCropName,
+      title: finalCropName,
+      category: finalCategory,
+      cropCategory: finalCategory,
+      variety,
+      grade: grade || 'B_STANDARD',
+      quantityKg: finalQuantity,
+      pricePerKg: finalPrice,
+      expectedPricePerKg: finalPrice,
       harvestDate,
-      images: images || [],
+      images: images || (image ? [image] : []),
       aiQualityGrade: aiQualityGrade || undefined,
       voiceNoteUrl,
-      pickupLocation: pickupLocation || req.user.location,
+      pickupLocation: pickupLocation || (typeof location === 'object' ? location : req.user.location),
+      status: 'AVAILABLE',
+      isAvailable: true,
     });
 
     res.status(201).json({ success: true, data: produce });
@@ -45,20 +65,38 @@ export const getAllProduce = async (req, res) => {
   try {
     const { category, search, minPrice, maxPrice, status } = req.query;
 
-    let query = { status: status || 'AVAILABLE' };
+    let query = {};
 
-    if (category) {
-      query.category = category;
+    if (status) {
+      query.status = status;
+    } else {
+      query.$or = [{ status: 'AVAILABLE' }, { isAvailable: true }];
+    }
+
+    if (category && category !== 'All') {
+      query.$and = query.$and || [];
+      query.$and.push({
+        $or: [{ category: category }, { cropCategory: category }],
+      });
     }
 
     if (search) {
-      query.cropName = { $regex: search, $options: 'i' };
+      const searchRegex = { $regex: search, $options: 'i' };
+      query.$and = query.$and || [];
+      query.$and.push({
+        $or: [{ cropName: searchRegex }, { title: searchRegex }, { variety: searchRegex }],
+      });
     }
 
     if (minPrice || maxPrice) {
-      query.expectedPricePerKg = {};
-      if (minPrice) query.expectedPricePerKg.$gte = Number(minPrice);
-      if (maxPrice) query.expectedPricePerKg.$lte = Number(maxPrice);
+      const priceFilter = {};
+      if (minPrice) priceFilter.$gte = Number(minPrice);
+      if (maxPrice) priceFilter.$lte = Number(maxPrice);
+
+      query.$and = query.$and || [];
+      query.$and.push({
+        $or: [{ expectedPricePerKg: priceFilter }, { pricePerKg: priceFilter }],
+      });
     }
 
     const produceListings = await Produce.find(query)

@@ -12,10 +12,11 @@ const errorHandler = (err, req, res, next) => {
     return res.status(404).json({ success: false, message });
   }
 
-  // 2. Mongoose Duplicate Key Error (e.g., duplicate phone number)
+  // 2. Mongoose Duplicate Key Error (e.g., duplicate phone number or email)
   if (err.code === 11000) {
-    const field = Object.keys(err.keyValue)[0];
-    const message = `Duplicate value entered for '${field}' field. Please use another value.`;
+    const field = err.keyValue ? Object.keys(err.keyValue)[0] : 'field';
+    const value = err.keyValue ? err.keyValue[field] : '';
+    const message = `An account with this ${field} (${value}) already exists. Please login instead.`;
     return res.status(400).json({ success: false, message });
   }
 

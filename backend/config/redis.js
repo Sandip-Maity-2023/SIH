@@ -1,4 +1,4 @@
-const { createClient } = require('redis');
+import { createClient } from 'redis';
 
 // Prefer environment variables, fallback to specified Redis cloud credentials
 const client = createClient({
@@ -29,4 +29,4 @@ client.on('error', (err) => {
   }
 })();
 
-module.exports = client;
+export default client;
