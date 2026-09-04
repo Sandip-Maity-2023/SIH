@@ -9,8 +9,8 @@ const {
   placeBid,
   updateBidStatus,
 } = require('../controllers/cropController');
-const { protect, authorize } = require('../middleware/authMiddleware');
-const upload = require('../middleware/uploadMiddleware');
+const { protect, authorize } = require('../../middleware/authMiddleware');
+const upload = require('../../middleware/uploadMiddleware');
 
 // Public route to view available crops with optional filters
 router.get('/', getCropLots);

@@ -1,10 +1,8 @@
-
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const connectDB = async () => {
   try {
-
-    //establish connection with an explicit 8-second timeout to avoid long waits in case of connection issues
+    // Establish connection with an explicit 8-second timeout to avoid long waits in case of connection issues
     const conn = await mongoose.connect(process.env.MONGO_URI, {
       serverSelectionTimeoutMS: 8000,
     });
@@ -15,6 +13,4 @@ const connectDB = async () => {
   }
 };
 
-module.exports = connectDB;
-
-
+export default connectDB;

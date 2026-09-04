@@ -1,12 +1,12 @@
-
-const express = require('express');
-const router = express.Router();
-const {
+import express from 'express';
+import {
   createOrder,
   getUserOrders,
   releaseEscrow,
-} = require('../controllers/orderController');
-const { protect, authorize } = require('../middleware/authMiddleware');
+} from '../controllers/orderController.js';
+import { protect, authorize } from '../middleware/authMiddleware.js';
+
+const router = express.Router();
 
 // All order routes require authentication
 router.use(protect);
@@ -24,4 +24,4 @@ router.put(
   releaseEscrow
 );
 
-module.exports = router;
+export default router;

@@ -1,7 +1,7 @@
 
 const axios = require('axios');
 const CropLot = require('../models/Crop');
-const { solveVRP } = require('../services/vrpService');
+const { solveVRP } = require('../../services/vrpService');
 
 const AI_MICROSERVICE_URL = process.env.AI_MICROSERVICE_URL || 'http://localhost:8000';
 

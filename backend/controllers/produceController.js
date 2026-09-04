@@ -1,0 +1,172 @@
+import Produce from '../models/Produce.js';
+
+// @desc    Create a new produce listing
+// @route   POST /api/produce
+// @access  Private (Farmer / FPO)
+export const createProduce = async (req, res) => {
+  try {
+    const {
+      cropName,
+      category,
+      quantityKg,
+      expectedPricePerKg,
+      harvestDate,
+      images,
+      aiQualityGrade,
+      voiceNoteUrl,
+      pickupLocation,
+      fpoId,
+    } = req.body;
+
+    const produce = await Produce.create({
+      farmerId: req.user.id,
+      fpoId: fpoId || undefined,
+      cropName,
+      category,
+      quantityKg,
+      expectedPricePerKg,
+      harvestDate,
+      images: images || [],
+      aiQualityGrade: aiQualityGrade || undefined,
+      voiceNoteUrl,
+      pickupLocation: pickupLocation || req.user.location,
+    });
+
+    res.status(201).json({ success: true, data: produce });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Get all available produce listings (with search & filtering)
+// @route   GET /api/produce
+// @access  Public
+export const getAllProduce = async (req, res) => {
+  try {
+    const { category, search, minPrice, maxPrice, status } = req.query;
+
+    let query = { status: status || 'AVAILABLE' };
+
+    if (category) {
+      query.category = category;
+    }
+
+    if (search) {
+      query.cropName = { $regex: search, $options: 'i' };
+    }
+
+    if (minPrice || maxPrice) {
+      query.expectedPricePerKg = {};
+      if (minPrice) query.expectedPricePerKg.$gte = Number(minPrice);
+      if (maxPrice) query.expectedPricePerKg.$lte = Number(maxPrice);
+    }
+
+    const produceListings = await Produce.find(query)
+      .populate('farmerId', 'name phone location')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ success: true, count: produceListings.length, data: produceListings });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Get single produce listing details
+// @route   GET /api/produce/:id
+// @access  Public
+export const getProduceById = async (req, res) => {
+  try {
+    const produce = await Produce.findById(req.params.id)
+      .populate('farmerId', 'name phone location')
+      .populate('bids.buyerId', 'name phone');
+
+    if (!produce) {
+      return res.status(404).json({ success: false, message: 'Produce listing not found' });
+    }
+
+    res.status(200).json({ success: true, data: produce });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Update produce listing details
+// @route   PUT /api/produce/:id
+// @access  Private (Farmer owner only)
+export const updateProduce = async (req, res) => {
+  try {
+    let produce = await Produce.findById(req.params.id);
+
+    if (!produce) {
+      return res.status(404).json({ success: false, message: 'Produce listing not found' });
+    }
+
+    if (produce.farmerId.toString() !== req.user.id && req.user.role !== 'ADMIN') {
+      return res.status(403).json({ success: false, message: 'Unauthorized to edit this listing' });
+    }
+
+    produce = await Produce.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    res.status(200).json({ success: true, data: produce });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Delete a produce listing
+// @route   DELETE /api/produce/:id
+// @access  Private (Farmer owner / Admin)
+export const deleteProduce = async (req, res) => {
+  try {
+    const produce = await Produce.findById(req.params.id);
+
+    if (!produce) {
+      return res.status(404).json({ success: false, message: 'Produce listing not found' });
+    }
+
+    if (produce.farmerId.toString() !== req.user.id && req.user.role !== 'ADMIN') {
+      return res.status(403).json({ success: false, message: 'Unauthorized to delete this listing' });
+    }
+
+    await produce.deleteOne();
+
+    res.status(200).json({ success: true, message: 'Produce listing removed' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Submit a bid on a produce lot
+// @route   POST /api/produce/:id/bids
+// @access  Private (Buyer)
+export const placeBid = async (req, res) => {
+  try {
+    const { bidAmountPerKg, quantityKg, message } = req.body;
+
+    const produce = await Produce.findById(req.params.id);
+    if (!produce) {
+      return res.status(404).json({ success: false, message: 'Produce listing not found' });
+    }
+
+    if (produce.status !== 'AVAILABLE') {
+      return res.status(400).json({ success: false, message: 'Bidding closed for this lot' });
+    }
+
+    const newBid = {
+      buyerId: req.user.id,
+      bidAmountPerKg,
+      quantityKg,
+      message,
+    };
+
+    produce.bids.push(newBid);
+    await produce.save();
+
+    res.status(201).json({ success: true, data: produce });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

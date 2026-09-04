@@ -6,7 +6,7 @@ const {
   getMandiForecast,
   getOptimizedRoute,
 } = require('../controllers/aiProxyController');
-const { protect, authorize } = require('../middleware/authMiddleware');
+const { protect, authorize } = require('../../middleware/authMiddleware');
 
 // Public or lightweight cached route for Mandi price & demand forecasting
 router.get('/forecast-price', getMandiForecast);

@@ -1,5 +1,10 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Recreate __dirname in ES Module scope
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Ensure log directory exists
 const logDirectory = path.join(__dirname, '../logs');
@@ -50,4 +55,4 @@ const logger = {
   },
 };
 
-module.exports = logger;
+export default logger;

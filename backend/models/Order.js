@@ -1,80 +1,124 @@
+import mongoose from 'mongoose';
 
-const mongoose = require('mongoose');
+const orderItemSchema = new mongoose.Schema(
+  {
+    cropLotId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Produce', // Aligned with the project's Produce model
+      required: [true, 'Crop lot reference is required.'],
+    },
+    farmerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: [true, 'Farmer reference is required.'],
+    },
+    quantityKg: {
+      type: Number,
+      required: [true, 'Quantity in KG is required.'],
+      min: [0.1, 'Quantity must be at least 0.1 kg.'],
+    },
+    pricePerKg: {
+      type: Number,
+      required: [true, 'Price per KG is required.'],
+      min: [0, 'Price cannot be negative.'],
+    },
+    subtotal: {
+      type: Number,
+      required: [true, 'Subtotal is required.'],
+      min: [0, 'Subtotal cannot be negative.'],
+    },
+  },
+  { _id: true }
+);
 
 const orderSchema = new mongoose.Schema(
   {
     buyerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
+      required: [true, 'Buyer reference is required.'],
+      index: true,
     },
     // Array of crop lots aggregated inside this single order
-    items: [
-      {
-        cropLotId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'CropLot',
-          required: true,
+    items: {
+      type: [orderItemSchema],
+      validate: {
+        validator: function (v) {
+          return Array.isArray(v) && v.length > 0;
         },
-        farmerId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'User',
-          required: true,
-        },
-        quantityKg: { type: Number, required: true },
-        pricePerKg: { type: Number, required: true },
-        subtotal: { type: Number, required: true },
+        message: 'An order must contain at least one item.',
       },
-    ],
+    },
     totalAmount: {
       type: Number,
-      required: true,
+      required: [true, 'Total amount is required.'],
+      min: [0, 'Total amount cannot be negative.'],
+    },
+    platformFee: {
+      type: Number,
+      default: 0,
+    },
+    logisticsFee: {
+      type: Number,
+      default: 0,
     },
     deliveryAddress: {
-      street: String,
-      city: String,
-      district: String,
-      state: String,
-      pincode: String,
+      street: { type: String, required: true },
+      city: { type: String, required: true },
+      district: { type: String, required: true },
+      state: { type: String, required: true },
+      pincode: { type: String, required: true },
       location: {
-        type: { type: String, enum: ['Point'], default: 'Point' },
-        coordinates: [Number], // [longitude, latitude]
+        type: {
+          type: String,
+          enum: ['Point'],
+          default: 'Point',
+        },
+        coordinates: {
+          type: [Number], // [longitude, latitude]
+          required: true,
+        },
       },
     },
 
     // Escrow payment model fields
     paymentDetails: {
-      paymentGatewayOrderId: String,
+      paymentGatewayOrderId: { type: String, default: null },
       escrowStatus: {
         type: String,
         enum: ['PENDING', 'LOCKED_IN_ESCROW', 'RELEASED_TO_FARMER', 'REFUNDED'],
         default: 'PENDING',
       },
-      transactionReference: String,
-      paidAt: Date,
+      transactionReference: { type: String, default: null },
+      paidAt: { type: Date, default: null },
     },
 
     orderStatus: {
       type: String,
       enum: [
-        'PLACED',
-        'CONFIRMED',
-        'LOGISTICS_ASSIGNED',
-        'IN_TRANSIT',
+        'PENDING_PAYMENT',
+        'ESCROW_HOLD',
+        'DISPATCHED',
         'DELIVERED',
+        'DISPUTED',
+        'COMPLETED',
         'CANCELLED',
       ],
-      default: 'PLACED',
+      default: 'PENDING_PAYMENT',
     },
 
     logisticsTripId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'LogisticsTrip',
+      ref: 'Vehicle',
+      default: null,
     },
   },
   { timestamps: true }
 );
 
+// Indexes
 orderSchema.index({ buyerId: 1, orderStatus: 1 });
+orderSchema.index({ 'items.farmerId': 1 });
+orderSchema.index({ 'deliveryAddress.location': '2dsphere' });
 
-module.exports = mongoose.model('Order', orderSchema);
+export default mongoose.model('Order', orderSchema);

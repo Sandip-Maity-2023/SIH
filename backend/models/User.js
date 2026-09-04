@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema(
   {
@@ -7,80 +7,47 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Name is required'],
       trim: true,
     },
-    phone: {
-      type: String,
-      required: [true, 'Phone number is required'],
-      unique: true,
-      trim: true,
-    },
     email: {
       type: String,
+      required: [true, 'Email is required'],
+      unique: true, // Automatically creates an index on email: 1
       lowercase: true,
       trim: true,
+      match: [
+        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+        'Please enter a valid email address',
+      ],
+    },
+    password: {
+      type: String,
+      required: [true, 'Password is required'],
     },
     role: {
       type: String,
-      enum: ['FARMER', 'FPO', 'BUYER', 'DRIVER', 'ADMIN'],
-      default: 'FARMER',
-      required: true,
+      enum: ['farmer', 'buyer', 'logistics', 'fpo', 'admin'],
+      default: 'buyer',
     },
-    languagePreference: {
+    phoneNumber: {
       type: String,
-      enum: ['hi', 'bn', 'te', 'ta', 'mr', 'gu', 'kn', 'en'],
-      default: 'hi',
+      trim: true,
     },
-    // Geospatial location for proximity searches & route optimization
-    location: {
-      type: {
-        type: String,
-        enum: ['Point'],
-        default: 'Point',
-      },
-      coordinates: {
-        type: [Number], // [longitude, latitude]
-        required: true,
-      },
-      address: {
-        villageOrCity: String,
-        district: String,
-        state: String,
-        pincode: String,
-      },
-    },
-    // Specific fields for FPO (Farmer Producer Organization) accounts
-    fpoDetails: {
-      registrationNumber: String,
-      memberCount: Number,
-      operationalDistricts: [String],
-    },
-    // Specific details for Logistics Drivers
-    driverDetails: {
-      licenseNumber: String,
-      vehicleType: {
-        type: String,
-        enum: ['TRACTOR', 'SMALL_TRUCK', 'LARGE_TRUCK', 'COLD_VAN'],
-      },
-      vehicleCapacityKg: Number,
-      vehicleNumber: String,
-      isAvailable: { type: Boolean, default: true },
-    },
-    isVerified: {
+    kycVerified: {
       type: Boolean,
       default: false,
     },
-    kycDocuments: {
-      aadhaarHash: String,
-      bankAccountDetails: {
-        accountNumber: String,
-        ifscCode: String,
-        upiId: String,
-      },
+    kycRemarks: {
+      type: String,
+      default: '',
+    },
+    kycVerifiedAt: {
+      type: Date,
     },
   },
   { timestamps: true }
 );
 
-// Enable 2DSphere Indexing for geospatial queries (e.g., find nearby farmers)
-userSchema.index({ location: '2dsphere' });
+// Removed redundant userSchema.index({ email: 1 }); to eliminate Mongoose startup warning
 
-module.exports = mongoose.model('User', userSchema);
+const User = mongoose.models.User || mongoose.model('User', userSchema);
+
+export default User;

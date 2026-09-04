@@ -1,13 +1,13 @@
-
-const express = require('express');
-const router = express.Router();
-const {
+import express from 'express';
+import {
   getActiveTrips,
   createTrip,
   updateDriverLocation,
   completeWaypoint,
-} = require('../controllers/logisticsController');
-const { protect, authorize } = require('../middleware/authMiddleware');
+} from '../controllers/logisticsController.js';
+import { protect, authorize } from '../middleware/authMiddleware.js';
+
+const router = express.Router();
 
 router.use(protect);
 
@@ -30,4 +30,4 @@ router.put(
   completeWaypoint
 );
 
-module.exports = router;
+export default router;

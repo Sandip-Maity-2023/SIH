@@ -1,0 +1,18 @@
+[2026-09-04T17:57:40.237Z] [INFO]: Seeding demo produce listings...
+[2026-09-04T17:57:40.247Z] [WARN]: No farmer user found to associate seeded produce. Skipping seed.
+[2026-09-04T17:57:40.254Z] [INFO]: Server running on port 5001
+[2026-09-04T17:59:10.081Z] [INFO]: Seeding demo produce listings...
+[2026-09-04T17:59:10.099Z] [WARN]: No farmer user found to associate seeded produce. Skipping seed.
+[2026-09-04T17:59:10.106Z] [INFO]: Server running on port 5001
+[2026-09-04T18:00:19.855Z] [INFO]: Seeding demo produce listings...
+[2026-09-04T18:00:19.884Z] [WARN]: No farmer user found to associate seeded produce. Skipping seed.
+[2026-09-04T18:00:19.891Z] [INFO]: Server running on port 5001
+[2026-09-04T18:01:49.777Z] [WARN]: Seed data execution skipped: seedDemoData is not a function
+[2026-09-04T18:01:49.787Z] [INFO]: Server running on port 5001
+[2026-09-04T18:04:19.472Z] [WARN]: Seed function not found in seedDemoData.js
+[2026-09-04T18:04:19.481Z] [INFO]: Server running on port 5001
+[2026-09-04T18:09:24.000Z] [INFO]: Seeding demo produce listings...
+[2026-09-04T18:09:24.030Z] [INFO]: No farmer user found. Creating a default demo farmer...
+[2026-09-04T18:09:24.219Z] [INFO]: Demo farmer created: farmer.demo@example.com
+[2026-09-04T18:09:24.234Z] [INFO]: Demo produce data seeded successfully!
+[2026-09-04T18:09:24.240Z] [INFO]: Server running on port 5001
