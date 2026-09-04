@@ -41,7 +41,7 @@ const AddProduceModal = ({ initialProduce, onSaved, onCancel }) => {
       try {
         const uploadedUrl = await uploadFile(file);
         setFormData((prev) => ({ ...prev, imageUrl: uploadedUrl }));
-      } catch (err) {
+      } catch {
         const compressedUrl = await compressImage(file);
         setFormData((prev) => ({ ...prev, imageUrl: compressedUrl }));
       }
@@ -195,7 +195,7 @@ const AddProduceModal = ({ initialProduce, onSaved, onCancel }) => {
         {/* Farm Location Option */}
         <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
           <span className="text-xs font-bold uppercase tracking-wider text-slate-700">Farm Location & Mandi Address</span>
-          <div className="mt-3">
+          <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-[1fr_auto]">
             <label className="block">
               <span className="text-xs font-semibold text-slate-600">Farm Gate Address / Pickup Location</span>
               <input
@@ -205,6 +205,20 @@ const AddProduceModal = ({ initialProduce, onSaved, onCancel }) => {
                 placeholder="e.g. Singur Farm Hub, Block B, Hooghly, West Bengal"
                 className="mt-1 h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-xs sm:text-sm font-medium"
               />
+            </label>
+            <button type="button" onClick={handleGetLocation} className="self-end rounded-md border border-emerald-700 px-4 py-2 text-sm font-bold text-emerald-800 hover:bg-emerald-50">
+              Use GPS
+            </button>
+          </div>
+          <div className="mt-3">
+            <label className="block">
+              <span className="text-xs font-semibold text-slate-600">Quick Location Preset</span>
+              <select onChange={handlePresetLocation} defaultValue="" className="mt-1 h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-xs sm:text-sm">
+                <option value="" disabled>Select a known mandi location</option>
+                <option value="singur">Singur Crop Collective, Hooghly</option>
+                <option value="nashik">Nashik Mandi Farm Gate</option>
+                <option value="ratnagiri">Ratnagiri Orchard Gate</option>
+              </select>
             </label>
           </div>
         </div>

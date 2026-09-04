@@ -56,7 +56,7 @@ const Profile = () => {
         documents: u.documents || prev.documents,
         kycVerified: u.kycVerified ?? prev.kycVerified,
       }));
-    } catch (err) {
+    } catch {
       console.warn('Could not fetch latest database profile');
     } finally {
       setLoading(false);
@@ -86,7 +86,7 @@ const Profile = () => {
       try {
         const uploadedUrl = await uploadFile(file);
         setProfile((prev) => ({ ...prev, avatarUrl: uploadedUrl }));
-      } catch (err) {
+      } catch {
         const compressedUrl = await compressImage(file);
         setProfile((prev) => ({ ...prev, avatarUrl: compressedUrl }));
       }
@@ -103,7 +103,7 @@ const Profile = () => {
           documentName: file.name,
           documentUrl: uploadedUrl,
         }));
-      } catch (err) {
+      } catch {
         const compressedUrl = await compressImage(file);
         setNewDoc((prev) => ({
           ...prev,

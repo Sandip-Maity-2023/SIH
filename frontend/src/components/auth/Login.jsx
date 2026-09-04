@@ -42,7 +42,7 @@ const Login = ({ onLoginSuccess, onNavigateToSignUp }) => {
 
       const result = await response.json();
       if (onLoginSuccess) onLoginSuccess(result);
-    } catch (err) {
+    } catch {
       // Demo fallback handling
       console.warn('Backend unavailable, simulating successful login response');
       if (onLoginSuccess) {

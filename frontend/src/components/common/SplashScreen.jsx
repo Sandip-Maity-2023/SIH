@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Zap, Sparkles, ShieldCheck, Leaf } from 'lucide-react';
+import { Zap, ShieldCheck } from 'lucide-react';
 import { GiFruitBowl, GiTomato, GiMilkCarton } from 'react-icons/gi';
 import { FaShoppingCart } from 'react-icons/fa';
 

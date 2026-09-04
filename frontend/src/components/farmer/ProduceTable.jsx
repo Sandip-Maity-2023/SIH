@@ -11,7 +11,7 @@ const ProduceTable = () => {
       if (!response.ok) throw new Error('Failed to fetch listings');
       const data = await response.json();
       setProduces(Array.isArray(data) ? data : data.data || []);
-    } catch (err) {
+    } catch {
       // Fallback demo crop inventory
       setProduces([
         { id: 'P-101', cropName: 'Fresh Organic Tomatoes', category: 'Vegetables', quantity: 1200, unit: 'kg', pricePerUnit: 28, status: 'Available' },

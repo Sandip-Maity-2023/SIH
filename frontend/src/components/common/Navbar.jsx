@@ -4,9 +4,8 @@ import { AuthContext } from '../../context/AuthContext';
 import { CartContext } from '../../context/CartContext';
 import { FcSearch } from 'react-icons/fc';
 import { FaShoppingCart } from 'react-icons/fa';
-import { MapPin, LogOut, ChevronDown, Zap, ShieldCheck } from 'lucide-react';
+import { MapPin, LogOut, ChevronDown, Zap } from 'lucide-react';
 import { GiTomato, GiFruitBowl, GiMilkCarton } from 'react-icons/gi';
-import { MdBakeryDining } from 'react-icons/md';
 
 const roleLinks = {
   FARMER: [

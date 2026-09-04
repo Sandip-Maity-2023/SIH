@@ -17,7 +17,7 @@ export default function AdminOrders() {
       setLoading(true);
       const { data } = await getUserOrders();
       setOrders(data.data || data.orders || []);
-    } catch (error) {
+    } catch {
       setOrders(fallbackOrders.map(([id, crop, orderStatus, escrowStatus]) => ({ _id: id, crop, orderStatus, paymentDetails: { escrowStatus } })));
     } finally {
       setLoading(false);

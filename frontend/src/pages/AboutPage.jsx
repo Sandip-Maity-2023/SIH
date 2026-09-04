@@ -2,14 +2,9 @@ import React from 'react';
 import { 
   Sprout, 
   ShieldCheck, 
-  TrendingUp, 
   Users, 
   Truck, 
-  Scale, 
-  CheckCircle, 
-  Award, 
-  HeartHandshake, 
-  Globe 
+  Scale
 } from 'lucide-react';
 
 export default function AboutPage() {

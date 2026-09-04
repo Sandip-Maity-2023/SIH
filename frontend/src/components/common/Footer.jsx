@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShieldCheck, Truck, Zap, Award, Phone, Mail, MapPin, Globe, ArrowRight } from 'lucide-react';
-import { GiFruitBowl, GiTomato, GiMilkCarton, GiClothes } from 'react-icons/gi';
+import { ShieldCheck, Truck, Zap, Award, Phone, Mail, MapPin } from 'lucide-react';
+import { GiFruitBowl, GiTomato, GiMilkCarton } from 'react-icons/gi';
 import { MdBakeryDining } from 'react-icons/md';
 import { FaShoppingCart, FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
 

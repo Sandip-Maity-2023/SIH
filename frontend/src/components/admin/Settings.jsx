@@ -21,7 +21,7 @@ const Setting = () => {
           const data = await response.json();
           setSettings(data);
         }
-      } catch (err) {
+      } catch {
         console.warn('Using default settings state.');
       } finally {
         setLoading(false);
@@ -51,7 +51,7 @@ const Setting = () => {
       if (response.ok) {
         alert('Platform settings updated successfully!');
       }
-    } catch (err) {
+    } catch {
       alert('Settings saved locally.');
     } finally {
       setSaving(false);

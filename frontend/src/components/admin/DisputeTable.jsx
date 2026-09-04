@@ -11,7 +11,7 @@ const Dispute = () => {
       if (!response.ok) throw new Error('Failed to load disputes');
       const data = await response.json();
       setDisputes(Array.isArray(data) ? data : data.data || []);
-    } catch (err) {
+    } catch {
       // Fallback data structure for UI rendering
       setDisputes([
         {
@@ -55,7 +55,7 @@ const Dispute = () => {
         alert(`Dispute ${disputeId} marked as ${resolution}`);
         fetchDisputes();
       }
-    } catch (err) {
+    } catch {
       alert(`Updated ${disputeId} status locally.`);
       setDisputes(prev =>
         prev.map(d => d.id === disputeId ? { ...d, status: resolution } : d)

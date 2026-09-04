@@ -44,7 +44,7 @@ const Payouts = () => {
           { id: 'TXN-792', orderId: 'ORD-8502', amount: 35000, status: 'Processing', date: '2026-09-02', method: 'Escrow Release' },
         ]);
       }
-    } catch (err) {
+    } catch {
       // Fallback
       setPayoutHistory([
         { id: 'TXN-901', orderId: 'ORD-8821', amount: 24000, status: 'Completed', date: '2026-08-28', method: 'Direct Bank Transfer' },

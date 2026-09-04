@@ -47,7 +47,7 @@ const AuthPage = ({ mode = 'login' }) => {
           documentUrl: fileUrl,
           uploadedAt: new Date().toISOString(),
         });
-      } catch (err) {
+      } catch {
         const compressedUrl = await compressImage(file);
         setKycDocument({
           documentType: 'Aadhaar / KYC Document',

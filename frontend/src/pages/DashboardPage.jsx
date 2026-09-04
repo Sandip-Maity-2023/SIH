@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { 
   Sprout, 
-  TrendingUp, 
   Package, 
   Wallet, 
   PlusCircle, 
@@ -9,11 +8,7 @@ import {
   Filter, 
   CheckCircle, 
   Clock, 
-  AlertCircle, 
-  UserCheck, 
-  BarChart3, 
-  Truck, 
-  ShieldCheck 
+  UserCheck
 } from 'lucide-react';
 
 export default function Dashboard() {

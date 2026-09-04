@@ -87,7 +87,7 @@ const LogisticsMap = () => {
         const trip = (data.trips || data.data || [])[0];
         if (!trip) return;
         if (trip._id) setActiveTripId(trip._id);
-      } catch (error) {
+      } catch {
         console.warn('Using default route schedule view');
       }
     };
@@ -275,4 +275,3 @@ const LogisticsMap = () => {
 };
 
 export default LogisticsMap;
-

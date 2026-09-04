@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Truck, Clock, MapPin, CheckCircle, Navigation, ShieldCheck } from 'lucide-react';
+import { Calendar, Truck, Clock, MapPin, CheckCircle, Navigation } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const initialSchedules = [

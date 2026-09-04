@@ -50,7 +50,7 @@ const SignUp = ({ onSignUpSuccess, onNavigateToLogin }) => {
 
       const result = await response.json();
       if (onSignUpSuccess) onSignUpSuccess(result);
-    } catch (err) {
+    } catch {
       // Local fallback execution for preview testing
       console.warn('Backend endpoint offline, completing registration in mock state.');
       if (onSignUpSuccess) {

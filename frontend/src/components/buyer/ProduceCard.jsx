@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Clock, MapPin, Award, Plus, Check, Zap } from 'lucide-react';
+import { MapPin, Plus, Check, Zap } from 'lucide-react';
 
 const ProduceCard = ({ produce, onAddToCart }) => {
   const [added, setAdded] = useState(false);

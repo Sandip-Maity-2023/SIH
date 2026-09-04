@@ -5,7 +5,6 @@ import { BarChart3, TrendingUp, DollarSign, Users, Package, Calendar } from 'luc
 const Analytics = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [timeframe, setTimeframe] = useState('monthly');
 
   const getFallbackData = (tf) => {
@@ -81,7 +80,6 @@ const Analytics = () => {
   const fetchAnalytics = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);
       const { data: result } = await API.get('/admin/analytics', {
         params: { timeframe },
       });
@@ -105,7 +103,7 @@ const Analytics = () => {
       } else {
         setData(getFallbackData(timeframe));
       }
-    } catch (err) {
+    } catch {
       // Use timeframe specific fallback on restricted non-admin roles
       setData(getFallbackData(timeframe));
     } finally {

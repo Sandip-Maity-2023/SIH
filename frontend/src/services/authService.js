@@ -1,7 +1,7 @@
 /**
  * Frontend helper for user input validation.
  */
-export const validateRegistrationInput = ({ name, email, password, role, phone, phoneNumber }) => {
+export const validateRegistrationInput = ({ name, password, role, phone, phoneNumber }) => {
   const validRoles = ['farmer', 'buyer', 'fpo', 'logistics', 'admin', 'consumer', 'bulk_buyer', 'driver'];
   const userPhone = phone || phoneNumber;
   
