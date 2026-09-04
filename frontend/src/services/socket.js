@@ -8,10 +8,11 @@ const SOCKET_URL =
 let socketInstance = null;
 
 export const getSocket = (token) => {
-  if (!socketInstance && token) {
+  const currentToken = token || localStorage.getItem('token');
+  if (!socketInstance) {
     socketInstance = io(SOCKET_URL, {
       autoConnect: true,
-      auth: { token },
+      auth: currentToken ? { token: currentToken } : {},
       transports: ['websocket', 'polling'],
     });
   }

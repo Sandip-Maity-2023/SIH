@@ -27,9 +27,34 @@ export const createProduce = async (req, res) => {
     } = req.body;
 
     const finalCropName = cropName || title || 'Fresh Produce';
-    const finalCategory = category || cropCategory || 'Vegetables';
+    const finalCategory = category || cropCategory || 'VEGETABLE';
     const finalPrice = Number(expectedPricePerKg || pricePerKg || 0);
     const finalQuantity = Number(quantityKg || quantityAvailable || 0);
+
+    const normLocation = (loc) => {
+      if (loc && typeof loc === 'object' && Array.isArray(loc.coordinates) && loc.coordinates.length === 2) {
+        return {
+          type: 'Point',
+          coordinates: [Number(loc.coordinates[0]) || 73.7898, Number(loc.coordinates[1]) || 20.0063],
+          address: {
+            villageOrCity: loc.farmAddress || loc.address?.villageOrCity || '',
+            district: loc.district || loc.address?.district || '',
+            state: loc.state || loc.address?.state || '',
+            pincode: loc.pincode || loc.address?.pincode || '',
+          },
+        };
+      }
+      return {
+        type: 'Point',
+        coordinates: [88.2325, 22.8122],
+        address: {
+          villageOrCity: typeof loc === 'string' ? loc : 'Singur Farm Cluster',
+          district: 'Hooghly',
+          state: 'West Bengal',
+          pincode: '712409',
+        },
+      };
+    };
 
     const produce = await Produce.create({
       farmerId: req.user.id,
@@ -38,23 +63,24 @@ export const createProduce = async (req, res) => {
       title: finalCropName,
       category: finalCategory,
       cropCategory: finalCategory,
-      variety,
-      grade: grade || 'B_STANDARD',
+      variety: variety || 'Standard',
+      grade: grade || 'Grade A',
       quantityKg: finalQuantity,
       pricePerKg: finalPrice,
       expectedPricePerKg: finalPrice,
-      harvestDate,
-      images: images || (image ? [image] : []),
-      aiQualityGrade: aiQualityGrade || undefined,
+      harvestDate: harvestDate ? new Date(harvestDate) : new Date(),
+      images: Array.isArray(images) ? images : (image ? [image] : []),
+      aiQualityGrade: typeof aiQualityGrade === 'object' ? aiQualityGrade : { grade: aiQualityGrade || grade || 'A_PREMIUM' },
       voiceNoteUrl,
-      pickupLocation: pickupLocation || (typeof location === 'object' ? location : req.user.location),
+      pickupLocation: normLocation(pickupLocation || location || req.user?.location),
       status: 'AVAILABLE',
       isAvailable: true,
     });
 
-    res.status(201).json({ success: true, data: produce });
+    return res.status(201).json({ success: true, data: produce });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('Error creating produce listing:', error);
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 

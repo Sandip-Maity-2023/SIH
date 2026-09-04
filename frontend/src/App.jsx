@@ -286,7 +286,7 @@ function AppRoutes() {
           <Route
             path="/marketplace"
             element={
-              <ProtectedRoute allowedRoles={['buyer', 'consumer', 'bulk_buyer']}>
+              <ProtectedRoute allowedRoles={['buyer', 'consumer', 'bulk_buyer', 'driver', 'logistics', 'logistics_partner', 'farmer', 'fpo', 'admin']}>
                 <Marketplace />
               </ProtectedRoute>
             }
@@ -331,7 +331,7 @@ function AppRoutes() {
           <Route
             path="/schedule"
             element={
-              <ProtectedRoute allowedRoles={['farmer', 'fpo', 'logistics', 'logistics_partner']}>
+              <ProtectedRoute allowedRoles={['farmer', 'fpo', 'driver', 'logistics', 'logistics_partner', 'admin']}>
                 <SchedulePage />
               </ProtectedRoute>
             }
@@ -433,7 +433,7 @@ function AppRoutes() {
           <Route
             path="/logistics"
             element={
-              <ProtectedRoute allowedRoles={['buyer', 'consumer', 'bulk_buyer', 'logistics', 'logistics_partner', 'admin']}>
+              <ProtectedRoute allowedRoles={['buyer', 'consumer', 'bulk_buyer', 'farmer', 'fpo', 'driver', 'logistics', 'logistics_partner', 'admin']}>
                 <LogisticsMap />
               </ProtectedRoute>
             }

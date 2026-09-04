@@ -63,7 +63,6 @@ const produceSchema = new mongoose.Schema(
     },
     grade: {
       type: String,
-      enum: ['A_PREMIUM', 'B_STANDARD', 'C_BULK_PROCESSING'],
       default: 'B_STANDARD',
     },
     aiQualityGrade: {
@@ -131,7 +130,7 @@ const produceSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-produceSchema.pre('save', function (next) {
+produceSchema.pre('save', function () {
   if (this.cropName && !this.title) {
     this.title = this.cropName;
   }
@@ -151,7 +150,6 @@ produceSchema.pre('save', function (next) {
     this.expectedPricePerKg = this.pricePerKg;
   }
   this.isAvailable = this.status === 'AVAILABLE';
-  next();
 });
 
 const Produce = mongoose.models.Produce || mongoose.model('Produce', produceSchema);

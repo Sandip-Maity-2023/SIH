@@ -93,4 +93,16 @@ export const getMandiPriceForecast = (params) => API.get('/admin/analytics', { p
 export const releaseEscrow = (orderId, payload) =>
   API.put(`/orders/${orderId}/release-escrow`, payload);
 
+/* ==========================================================================
+   FILE UPLOAD API
+   ========================================================================== */
+export const uploadFile = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const { data } = await API.post('/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return data.url || data.path;
+};
+
 export default API;

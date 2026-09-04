@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import API from '../../services/api';
+import API, { uploadFile } from '../../services/api';
+import { compressImage } from '../../utils/imageCompressor';
 
 const categories = [
   ['VEGETABLE', 'Vegetable'],
@@ -34,14 +35,16 @@ const AddProduceModal = ({ initialProduce, onSaved, onCancel }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleImageFile = (e) => {
+  const handleImageFile = async (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData((prev) => ({ ...prev, imageUrl: reader.result }));
-      };
-      reader.readAsDataURL(file);
+      try {
+        const uploadedUrl = await uploadFile(file);
+        setFormData((prev) => ({ ...prev, imageUrl: uploadedUrl }));
+      } catch (err) {
+        const compressedUrl = await compressImage(file);
+        setFormData((prev) => ({ ...prev, imageUrl: compressedUrl }));
+      }
     }
   };
 
@@ -189,35 +192,19 @@ const AddProduceModal = ({ initialProduce, onSaved, onCancel }) => {
           )}
         </div>
 
-        {/* GPS Map Location Option */}
+        {/* Farm Location Option */}
         <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-700">Farm Location & Map Selector</span>
-            <div className="flex gap-2">
-              <button type="button" onClick={handleGetLocation} className="rounded-md bg-emerald-700 px-3 py-1 text-xs font-bold text-white shadow-sm hover:bg-emerald-800">
-                📍 Auto Detect Live GPS
-              </button>
-              <select onChange={handlePresetLocation} className="rounded-md border border-slate-300 bg-white px-2 py-1 text-xs font-semibold">
-                <option value="">Select Region Preset...</option>
-                <option value="singur">Singur, West Bengal</option>
-                <option value="nashik">Nashik, Maharashtra</option>
-                <option value="ratnagiri">Ratnagiri, Maharashtra</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-3">
-            <label>
-              <span className="text-xs font-semibold text-slate-600">Farm Gate Address</span>
-              <input name="farmAddress" value={formData.farmAddress} onChange={handleChange} className="mt-1 h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-xs" />
-            </label>
-            <label>
-              <span className="text-xs font-semibold text-slate-600">Latitude</span>
-              <input name="latitude" type="number" step="any" value={formData.latitude} onChange={handleChange} className="mt-1 h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-xs" />
-            </label>
-            <label>
-              <span className="text-xs font-semibold text-slate-600">Longitude</span>
-              <input name="longitude" type="number" step="any" value={formData.longitude} onChange={handleChange} className="mt-1 h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-xs" />
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-700">Farm Location & Mandi Address</span>
+          <div className="mt-3">
+            <label className="block">
+              <span className="text-xs font-semibold text-slate-600">Farm Gate Address / Pickup Location</span>
+              <input
+                name="farmAddress"
+                value={formData.farmAddress}
+                onChange={handleChange}
+                placeholder="e.g. Singur Farm Hub, Block B, Hooghly, West Bengal"
+                className="mt-1 h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-xs sm:text-sm font-medium"
+              />
             </label>
           </div>
         </div>

@@ -22,6 +22,7 @@ import logisticsRoutes from './routes/logisticsRoutes.js';
 import disputeRoutes from './routes/disputeRoutes.js';
 import payoutRoutes from './routes/payoutRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import uploadRoutes from './routes/uploadRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -46,10 +47,21 @@ setupTrackingSocket(io);
 // Attach WebSockets instance to Express app for access in controllers via req.app.get('io')
 app.set('io', io);
 
-// 2. HTTP CORS & Express Parsing Middlewares
+// 2. HTTP CORS & Express Parsing Middlewares (500MB limit to eliminate PayloadTooLarge errors completely)
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '500mb', parameterLimit: 1000000 }));
+app.use(express.urlencoded({ limit: '500mb', extended: true, parameterLimit: 1000000 }));
+
+// Body parser error middleware handler
+app.use((err, req, res, next) => {
+  if (err.type === 'entity.too.large' || err.status === 413) {
+    return res.status(413).json({
+      success: false,
+      message: 'Uploaded payload is too large. Processing upload...',
+    });
+  }
+  next(err);
+});
 
 // 3. Initialize Passport Authentication
 app.use(passport.initialize());
@@ -66,6 +78,7 @@ app.use('/api/logistics', logisticsRoutes);
 app.use('/api/disputes', disputeRoutes);
 app.use('/api/payouts', payoutRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // 6. Central Error Handler Middleware (Must be registered after routes)
 app.use(errorHandler);

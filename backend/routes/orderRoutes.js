@@ -3,6 +3,8 @@ import {
   createOrder,
   getUserOrders,
   releaseEscrow,
+  createRazorpayOrder,
+  verifyRazorpayPayment,
 } from '../controllers/orderController.js';
 import { protect, authorize } from '../middleware/authMiddleware.js';
 
@@ -15,12 +17,16 @@ router.use(protect);
 router.get('/', getUserOrders);
 
 // Buyer creates a new order and locks funds in escrow
-router.post('/', authorize('BUYER'), createOrder);
+router.post('/', authorize('BUYER', 'consumer', 'bulk_buyer'), createOrder);
+
+// Razorpay Order Creation and Verification
+router.post('/razorpay-order', createRazorpayOrder);
+router.post('/verify-payment', verifyRazorpayPayment);
 
 // Release escrow funds to farmers after delivery verification
 router.put(
   '/:id/release-escrow',
-  authorize('BUYER', 'ADMIN'),
+  authorize('BUYER', 'consumer', 'bulk_buyer', 'ADMIN'),
   releaseEscrow
 );
 

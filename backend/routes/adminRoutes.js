@@ -22,7 +22,7 @@ const router = express.Router();
 router.get(
   '/analytics',
   protect,
-  authorizeRoles('admin'),
+  authorizeRoles('ADMIN', 'FARMER', 'FPO', 'BUYER', 'LOGISTICS', 'DRIVER', 'admin', 'farmer', 'fpo', 'buyer', 'logistics', 'driver'),
   getAnalytics
 );
 

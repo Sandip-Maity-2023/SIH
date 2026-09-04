@@ -2,6 +2,9 @@ import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { BadgeCheck, FileUp, Landmark, LockKeyhole, Phone } from 'lucide-react';
+import { compressImage } from '../utils/imageCompressor';
+import { uploadFile } from '../services/api';
+import SplashScreen from '../components/common/SplashScreen';
 
 const roles = [
   ['FARMER', 'Farmer / FPO'],
@@ -11,6 +14,7 @@ const roles = [
 ];
 
 const AuthPage = ({ mode = 'login' }) => {
+  const [showSplash, setShowSplash] = useState(true);
   const [isLogin, setIsLogin] = useState(mode !== 'register');
   const [role, setRole] = useState('FARMER');
   const [formData, setFormData] = useState({
@@ -28,6 +32,32 @@ const AuthPage = ({ mode = 'login' }) => {
 
   const { login, register } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  const [kycDocument, setKycDocument] = useState(null);
+  const kycFileInputRef = React.useRef(null);
+
+  const handleKycFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const fileUrl = await uploadFile(file);
+        setKycDocument({
+          documentType: 'Aadhaar / KYC Document',
+          documentName: file.name,
+          documentUrl: fileUrl,
+          uploadedAt: new Date().toISOString(),
+        });
+      } catch (err) {
+        const compressedUrl = await compressImage(file);
+        setKycDocument({
+          documentType: 'Aadhaar / KYC Document',
+          documentName: file.name,
+          documentUrl: compressedUrl,
+          uploadedAt: new Date().toISOString(),
+        });
+      }
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -51,6 +81,8 @@ const AuthPage = ({ mode = 'login' }) => {
         navigate('/fpo-dashboard');
         break;
       case 'DRIVER':
+      case 'LOGISTICS':
+      case 'LOGISTICS_PARTNER':
         navigate('/logistics');
         break;
       default:
@@ -86,6 +118,8 @@ const AuthPage = ({ mode = 'login' }) => {
           kycNumber: formData.kycNumber,
           bankAccount: formData.bankAccount,
           location: formData.location,
+          documents: kycDocument ? [kycDocument] : [],
+          kycDocument: kycDocument || undefined,
         });
         const user = response.data?.user || response.data || response.user || response;
         redirectUser(user.role);
@@ -98,7 +132,9 @@ const AuthPage = ({ mode = 'login' }) => {
   };
 
   return (
-    <div className="min-h-screen bg-emerald-950 px-4 py-8 text-slate-900">
+    <>
+      {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
+      <div className="min-h-screen bg-slate-950 px-4 py-8 text-slate-900">
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 lg:grid-cols-[0.8fr_1.2fr]">
         <aside className="flex min-h-[520px] flex-col justify-between rounded-lg border border-emerald-800 bg-emerald-900 p-6 text-white">
           <div>
@@ -250,9 +286,24 @@ const AuthPage = ({ mode = 'login' }) => {
                   </label>
                 </div>
 
-                <button type="button" className="flex h-12 items-center justify-center gap-2 rounded-md border border-dashed border-slate-300 bg-slate-50 text-sm font-bold text-slate-600">
+                <input
+                  type="file"
+                  ref={kycFileInputRef}
+                  onChange={handleKycFileChange}
+                  accept="image/*,.pdf"
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => kycFileInputRef.current?.click()}
+                  className={`flex h-12 items-center justify-center gap-2 rounded-md border border-dashed text-sm font-bold transition ${
+                    kycDocument
+                      ? 'border-emerald-500 bg-emerald-50 text-emerald-900 shadow-sm'
+                      : 'border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
                   <FileUp className="h-4 w-4" />
-                  Upload KYC Document
+                  {kycDocument ? `✓ Attached: ${kycDocument.documentName}` : 'Upload KYC Document (Aadhaar / Land Certificate)'}
                 </button>
               </>
             )}
@@ -274,7 +325,8 @@ const AuthPage = ({ mode = 'login' }) => {
         </main>
       </div>
     </div>
-  );
+  </>
+);
 };
 
 export default AuthPage;

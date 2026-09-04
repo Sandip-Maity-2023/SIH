@@ -74,14 +74,11 @@ export const SocketProvider = ({ children }) => {
   const { token } = useContext(AuthContext);
 
   useEffect(() => {
-    if (!token) {
-      if (socket) socket.disconnect();
-      return;
-    }
+    const activeToken = token || localStorage.getItem('token');
 
     const socketInstance = io(SOCKET_URL, {
       autoConnect: true,
-      auth: { token },
+      auth: activeToken ? { token: activeToken } : {},
       transports: ['websocket', 'polling']
     });
 

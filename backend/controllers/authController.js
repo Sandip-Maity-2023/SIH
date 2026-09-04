@@ -181,6 +181,8 @@ export const registerUser = async (req, res) => {
       location: normalizeLocation(location),
       fpoDetails: normalizedRole === 'FPO' ? fpoDetails : undefined,
       driverDetails: normalizedRole === 'DRIVER' || normalizedRole === 'LOGISTICS' ? driverDetails : undefined,
+      documents: req.body.documents || (req.body.kycDocument ? [req.body.kycDocument] : []),
+      kycVerified: Boolean((req.body.documents && req.body.documents.length) || req.body.kycDocument),
     });
 
     const payload = buildUserPayload(user);

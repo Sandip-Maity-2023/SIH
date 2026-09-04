@@ -26,31 +26,31 @@ const storage = multer.diskStorage({
   },
 });
 
-// File filter for images and voice/audio recordings
+// File filter for images, documents, and voice/audio recordings
 const fileFilter = (req, file, cb) => {
-  const allowedImageTypes = /jpeg|jpg|png|webp/;
+  const allowedImageTypes = /jpeg|jpg|png|webp|pdf/;
   const allowedAudioTypes = /wav|mp3|m4a|ogg|webm/;
 
   const extname = path.extname(file.originalname).toLowerCase();
-  const isImage = allowedImageTypes.test(extname);
+  const isImageOrDoc = allowedImageTypes.test(extname);
   const isAudio = allowedAudioTypes.test(extname);
 
-  if (isImage || isAudio) {
+  if (isImageOrDoc || isAudio) {
     return cb(null, true);
   }
 
   cb(
     new Error(
-      'Unsupported file format. Only images (JPG, PNG, WEBP) and audio (WAV, MP3, M4A, OGG, WEBM) are allowed.'
+      'Unsupported file format. Only images (JPG, PNG, WEBP, PDF) and audio (WAV, MP3, M4A, OGG, WEBM) are allowed.'
     ),
     false
   );
 };
 
-// Initialize Multer Instance (5MB file limit)
+// Initialize Multer Instance (25MB file limit)
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB Max Size
+  limits: { fileSize: 25 * 1024 * 1024 }, // 25 MB Max Size
   fileFilter,
 });
 

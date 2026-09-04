@@ -1,9 +1,10 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import API from '../../services/api';
+import API, { uploadFile } from '../../services/api';
+import { compressImage } from '../../utils/imageCompressor';
 
 const Profile = () => {
-  const { user, register } = useContext(AuthContext);
+  const { user, updateUser } = useContext(AuthContext);
   const role = String(user?.role || '').toUpperCase();
   const [activeTab, setActiveTab] = useState('Personal Info');
   const [profile, setProfile] = useState({
@@ -56,7 +57,7 @@ const Profile = () => {
         kycVerified: u.kycVerified ?? prev.kycVerified,
       }));
     } catch (err) {
-      console.warn('Using local profile state');
+      console.warn('Could not fetch latest database profile');
     } finally {
       setLoading(false);
     }
@@ -79,29 +80,37 @@ const Profile = () => {
     }));
   };
 
-  const handleAvatarFile = (e) => {
+  const handleAvatarFile = async (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfile((prev) => ({ ...prev, avatarUrl: reader.result }));
-      };
-      reader.readAsDataURL(file);
+      try {
+        const uploadedUrl = await uploadFile(file);
+        setProfile((prev) => ({ ...prev, avatarUrl: uploadedUrl }));
+      } catch (err) {
+        const compressedUrl = await compressImage(file);
+        setProfile((prev) => ({ ...prev, avatarUrl: compressedUrl }));
+      }
     }
   };
 
-  const handleDocFile = (e) => {
+  const handleDocFile = async (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
+      try {
+        const uploadedUrl = await uploadFile(file);
         setNewDoc((prev) => ({
           ...prev,
           documentName: file.name,
-          documentUrl: reader.result,
+          documentUrl: uploadedUrl,
         }));
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        const compressedUrl = await compressImage(file);
+        setNewDoc((prev) => ({
+          ...prev,
+          documentName: file.name,
+          documentUrl: compressedUrl,
+        }));
+      }
     }
   };
 
@@ -150,10 +159,14 @@ const Profile = () => {
     };
 
     try {
-      await API.put('/auth/profile', payload);
-      setMessage({ type: 'success', text: 'Profile & preferences updated successfully!' });
+      const res = await API.put('/auth/profile', payload);
+      const updatedUser = res.data?.user || res.data?.data || res.data;
+      if (updateUser && updatedUser) {
+        updateUser(updatedUser);
+      }
+      setMessage({ type: 'success', text: 'Profile & account details saved to MongoDB database successfully!' });
     } catch (err) {
-      setMessage({ type: 'success', text: 'Profile saved locally.' });
+      setMessage({ type: 'error', text: err.response?.data?.message || 'Database update failed. Please check network connection.' });
     } finally {
       setSaving(false);
     }

@@ -5,12 +5,16 @@ import {
   initiatePayout,
   getPayouts,
   updatePayoutStatus,
+  requestBankTransfer,
 } from '../controllers/payoutController.js';
 
 // Import Authorization Middleware
 import { protect, authorizeRoles } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
+
+// Allow authenticated users to request bank transfer
+router.post('/request', protect, requestBankTransfer);
 
 /**
  * @route   POST /api/payouts

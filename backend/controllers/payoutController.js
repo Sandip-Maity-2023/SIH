@@ -74,3 +74,34 @@ export const updatePayoutStatus = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// @desc    Request bank transfer withdrawal (Farmer, Driver, FPO)
+// @route   POST /api/payouts/request
+// @access  Private (Farmer, Driver, FPO, Admin)
+export const requestBankTransfer = async (req, res) => {
+  try {
+    const { amount, transferMethod = 'Direct Bank Transfer', bankDetails } = req.body;
+    const requestedAmount = Number(amount || 0);
+
+    if (requestedAmount <= 0) {
+      return res.status(400).json({ success: false, message: 'Transfer amount must be greater than zero' });
+    }
+
+    const payout = await Payout.create({
+      farmerId: req.user.id,
+      amount: requestedAmount,
+      payoutMethod: transferMethod,
+      paymentDetails: bankDetails || req.user.bankDetails || {},
+      status: 'INITIATED',
+      transactionReference: `WITHDRAW-${Date.now()}`,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Bank transfer request submitted successfully. Processing with bank server.',
+      data: payout,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
