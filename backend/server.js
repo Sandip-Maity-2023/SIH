@@ -37,7 +37,7 @@ app.use('/api/logistics', require('./routes/logisticsRoutes'));
 // 5. Central Error Handler Middleware (Must be registered after routes)
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 6000;
 server.on('error', (error) => {
   if (error.code === 'EADDRINUSE') {
     console.error(

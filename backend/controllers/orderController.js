@@ -1,6 +1,6 @@
 
 const Order = require('../models/Order');
-const CropLot = require('../models/CropLot');
+const CropLot = require('../models/Crop');
 
 // @desc    Place a new B2B/Bulk purchase order with Escrow locking
 // @route   POST /api/orders

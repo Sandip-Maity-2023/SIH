@@ -1,5 +1,5 @@
 
-const LogisticsTrip = require('../models/LogisticsTrip');
+const LogisticsTrip = require('../models/Trip');
 const Order = require('../models/Order');
 
 // @desc    Get active logistics trips

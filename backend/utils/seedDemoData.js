@@ -26,7 +26,7 @@ const seedDemoData = async () => {
   const tripCount = await LogisticsTrip.estimatedDocumentCount();
 
   const farmer = await upsertUser('9999990001', {
-    name: 'Ramesh Patil',
+    name: 'Ram Patil',
     email: 'farmer@agridirect.test',
     role: 'FARMER',
     languagePreference: 'mr',

@@ -4,10 +4,12 @@ const jwt = require('jsonwebtoken');
 
 // Helper to generate JWT Token
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || 'sih_secret_key_123', {
+  return jwt.sign({ id }, process.env.JWT_SECRET , {          
     expiresIn: '30d',
   });
 };
+
+//|| 'sih_secret_key_123'
 
 const normalizeLocation = (location = {}) => {
   if (Array.isArray(location.coordinates) && location.coordinates.length === 2) {

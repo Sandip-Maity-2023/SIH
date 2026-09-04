@@ -5,7 +5,10 @@ import { AuthContext } from './AuthContext';
 
 export const SocketContext = createContext(null);
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+const SOCKET_URL =
+  import.meta.env.VITE_SOCKET_URL ||
+  import.meta.env.REACT_APP_SOCKET_URL ||
+  'http://localhost:5001';
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);

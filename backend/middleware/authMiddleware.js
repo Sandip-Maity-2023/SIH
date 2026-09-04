@@ -17,9 +17,11 @@ exports.protect = async (req, res, next) => {
       // Verify token
       const decoded = jwt.verify(
         token,
-        process.env.JWT_SECRET || 'sih_secret_key_123'
+        process.env.JWT_SECRET 
       );
 
+      //|| 'sih_secret_key_123'
+      
       // Attach user object to request (excluding KYC sensitive hashes)
       req.user = await User.findById(decoded.id).select(
         '-kycDocuments.aadhaarHash'

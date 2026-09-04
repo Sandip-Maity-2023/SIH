@@ -1,5 +1,5 @@
 
-const CropLot = require('../models/CropLot');
+const CropLot = require('../models/Crop');
 
 const formatCrop = (crop) => {
   const obj = crop.toObject ? crop.toObject() : crop;

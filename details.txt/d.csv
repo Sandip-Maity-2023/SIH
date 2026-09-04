@@ -4,3 +4,94 @@ npm init -y: Initializes a new Node.js project and generates a package.json file
 npm install express mongoose dotenv cors: Installs the fundamental backend libraries.
  npm install react-router-dom
  
+
+SIH/
+├── backend/
+│   ├── config/
+│   │   ├── db.js                   # MongoDB connection logic
+│   │   ├── passport.js             # JWT passport strategy
+│   │   └── redis.js                # Node Redis v4 Cloud Client setup
+│   ├── controllers/
+│   │   ├── aiController.js         # Computer Vision grading proxy
+│   │   ├── authController.js       # Authentication & user profile handlers
+│   │   ├── cropController.js       # Crop listing & bidding controllers
+│   │   ├── fpoController.js        # Consignment pooling & aggregation
+│   │   ├── logisticsController.js  # VRP route optimization & trip tracking
+│   │   └── orderController.js      # Order workflow handlers
+│   ├── middleware/
+│   │   ├── auth.js                 # Role-based JWT authentication middleware
+│   │   ├── errorHandler.js         # Centralized API error handling
+│   │   └── upload.js               # Multer image upload handling
+│   ├── models/
+│   │   ├── Crop.js                 # Crop listing schema
+│   │   ├── Order.js                # Transaction schema
+│   │   ├── PoolConsignment.js      # FPO consignment aggregation schema
+│   │   ├── Trip.js                 # Vehicle logistics & tracking schema
+│   │   └── User.js                 # User (Farmer, Buyer, FPO, Driver) schema
+│   ├── routes/
+│   │   ├── aiRoutes.js             # /api/ai
+│   │   ├── authRoutes.js           # /api/auth
+│   │   ├── cropRoutes.js           # /api/crops
+│   │   ├── fpoRoutes.js            # /api/fpo
+│   │   ├── logisticsRoutes.js      # /api/logistics
+│   │   └── orderRoutes.js          # /api/orders
+│   ├── services/
+│   │   ├── bhashiniService.js      # Multilingual translation service
+│   │   ├── paymentService.js       # Payment gateway integration
+│   │   ├── socketService.js        # WebSocket real-time event handlers
+│   │   └── vrpService.js           # Route optimization service
+│   ├── utils/
+│   │   ├── logger.js               # Backend activity logger
+│   │   └── seedDemoData.js         # Database seeding script (kept in backend)
+│   ├── .env                        # Backend environment variables
+│   ├── .gitignore
+│   ├── package.json
+│   ├── package-lock.json
+│   └── server.js                   # Main application entry point
+│
+└── frontend/
+    ├── dist/                       # Build output directory
+    ├── node_modules/
+    ├── src/
+    │   ├── assets/                 # Images, icons, and static assets
+    │   ├── components/
+    │   │   ├── common/
+    │   │   │   ├── Footer.jsx
+    │   │   │   └── Navbar.jsx
+    │   │   ├── dashboard/
+    │   │   │   ├── StatCard.jsx
+    │   │   │   └── WeatherWidget.jsx
+    │   │   ├── maps/
+    │   │   │   └── LiveRouteMap.jsx
+    │   │   └── marketplace/
+    │   │       ├── CropCard.jsx    # Renamed from Cropcard.jsx (PascalCase fix)
+    │   │       └── CropFilter.jsx
+    │   ├── context/
+    │   │   ├── AuthContext.jsx
+    │   │   └── SocketContext.jsx
+    │   ├── hooks/
+    │   │   ├── useGeoLocation.js
+    │   │   └── useSpeechToText.js
+    │   ├── pages/
+    │   │   ├── AuthPage.jsx
+    │   │   ├── BuyerDashboard.jsx
+    │   │   ├── CropDetails.jsx
+    │   │   ├── FPODashboard.jsx
+    │   │   ├── LogisticsMap.jsx
+    │   │   └── Marketplace.jsx
+    │   ├── services/
+    │   │   └── api.js              # Central Axios HTTP instance
+    │   ├── utils/                  # MOVED FROM BACKEND TO FRONTEND
+    │   │   ├── constants.js        # UI roles, categories, and grades
+    │   │   ├── formatters.js       # Currency (INR), weight, and date formatters
+    │   │   └── geoUtils.js         # Haversine distance and map calculations
+    │   ├── App.css
+    │   ├── App.jsx
+    │   ├── index.css
+    │   └── main.jsx
+    ├── .env                        # Frontend environment variables
+    ├── .gitignore
+    ├── .oxlintrc.json
+    ├── index.html
+    ├── package.json
+    └── package-lock.json
