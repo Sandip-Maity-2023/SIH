@@ -3,7 +3,119 @@ npm install --save-dev nodemon
 npm init -y: Initializes a new Node.js project and generates a package.json file automatically.
 npm install express mongoose dotenv cors: Installs the fundamental backend libraries.
  npm install react-router-dom
+ npm install passport passport-jwt
  
+ krishi-marketplace/
+├── backend/
+│   ├── config/
+│   │   ├── db.js                 # MongoDB connection
+│   │   ├── passport.js           # Auth strategies (JWT, OTP)
+│   │   └── cloudinary.js         # Image storage configuration
+│   ├── controllers/
+│   │   ├── adminController.js    # System settings, platform analytics
+│   │   ├── authController.js     # Signup, login, OTP, KYC verification
+│   │   ├── disputeController.js  # Quality disputes & refund management
+│   │   ├── logisticsController.js# Route optimization & live dispatching
+│   │   ├── orderController.js    # Cart, checkout, order state lifecycle
+│   │   ├── payoutController.js   # Direct farmer payout & wallet operations
+│   │   └── produceController.js  # Produce listings & stock updates
+│   ├── middleware/
+│   │   ├── authMiddleware.js     # Express JWT token protection
+│   │   ├── errorHandler.js       # Global centralized error handling
+│   │   ├── roleMiddleware.js     # RBAC (Farmer, Buyer, Logistics, Admin)
+│   │   └── uploadMiddleware.js   # Multer middleware for file uploads
+│   ├── models/
+│   │   ├── Dispute.js            # Quality dispute schema
+│   │   ├── Order.js              # Order & delivery schema
+│   │   ├── Payout.js             # Farmer payout/bank ledger schema
+│   │   ├── Produce.js            # Crop listing & inventory schema
+│   │   ├── User.js               # Multi-role user & KYC schema
+│   │   └── Vehicle.js            # Logistics & vehicle details schema
+│   ├── routes/
+│   │   ├── adminRoutes.js
+│   │   ├── authRoutes.js
+│   │   ├── disputeRoutes.js
+│   │   ├── logisticsRoutes.js
+│   │   ├── orderRoutes.js
+│   │   ├── payoutRoutes.js
+│   │   └── produceRoutes.js
+│   ├── socket/
+│   │   └── trackingSocket.js     # Socket.io connection logic for live tracking
+│   ├── utils/
+│   │   ├── aiForecast.js         # Demand forecasting helpers
+│   │   ├── aiPricing.js          # AI price suggestion algorithm
+│   │   ├── generateFarmerId.js   # Custom ID formatting logic
+│   │   └── routeOptimizer.js     # Route batching and spatial math
+│   ├── .env.example
+│   ├── .gitignore
+│   ├── app.js                    # Express app configuration & middleware setups
+│   ├── package.json
+│   └── server.js                 # Server entry point (HTTP + Socket.io listener)
+│
+└── frontend/
+    ├── public/
+    │   ├── favicon.ico
+    │   └── logo.svg
+    ├── src/
+    │   ├── assets/
+    │   │   ├── icons/
+    │   │   └── images/
+    │   ├── components/
+    │   │   ├── admin/
+    │   │   │   ├── Analytics.jsx
+    │   │   │   ├── DisputesTable.jsx
+    │   │   │   └── Settings.jsx
+    │   │   ├── auth/
+    │   │   │   ├── AccountTypeSelector.jsx
+    │   │   │   ├── Login.jsx
+    │   │   │   └── Signup.jsx
+    │   │   ├── buyer/
+    │   │   │   ├── Cart.jsx
+    │   │   │   ├── Checkout.jsx
+    │   │   │   ├── Marketplace.jsx
+    │   │   │   └── ProduceCard.jsx
+    │   │   ├── common/
+    │   │   │   ├── Footer.jsx
+    │   │   │   ├── Navbar.jsx
+    │   │   │   ├── Profile.jsx
+    │   │   │   ├── ProtectedRoute.jsx
+    │   │   │   └── StatCard.jsx
+    │   │   ├── farmer/
+    │   │   │   ├── AddProduceModal.jsx
+    │   │   │   ├── FarmerDashboard.jsx
+    │   │   │   ├── Payouts.jsx
+    │   │   │   └── ProduceTable.jsx
+    │   │   └── logistics/
+    │   │       ├── LiveTracking.jsx
+    │   │       └── RouteScheduler.jsx
+    │   ├── context/
+    │   │   ├── AuthContext.jsx   # Global user state & token setup
+    │   │   ├── CartContext.jsx   # Client shopping cart management
+    │   │   └── SocketContext.jsx # Real-time Socket.io provider
+    │   ├── pages/
+    │   │   ├── AboutPage.jsx
+    │   │   ├── ContactPage.jsx
+    │   │   ├── DashboardPage.jsx # Role-based routing landing page
+    │   │   ├── HomePage.jsx
+    │   │   └── NotFoundPage.jsx
+    │   ├── services/
+    │   │   ├── api.js            # Axios base configuration & interceptors
+    │   │   ├── authService.js
+    │   │   ├── disputeService.js
+    │   │   ├── orderService.js
+    │   │   ├── produceService.js
+    │   │   └── socket.js         # Socket.io client setup
+    │   ├── utils/
+    │   │   └── formatters.js     # Currency (INR), date, & unit converters
+    │   ├── App.jsx               # React Router configuration
+    │   ├── index.css             # Tailwind CSS directives
+    │   └── main.jsx              # Application DOM entry point
+    ├── .env.example
+    ├── .gitignore
+    ├── index.html                # Entry HTML for Vite
+    ├── package.json
+    ├── tailwind.config.js
+    └── vite.config.js
 
 SIH/
 ├── backend/

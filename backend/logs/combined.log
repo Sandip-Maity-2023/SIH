@@ -16,3 +16,5 @@
 [2026-09-04T18:09:24.219Z] [INFO]: Demo farmer created: farmer.demo@example.com
 [2026-09-04T18:09:24.234Z] [INFO]: Demo produce data seeded successfully!
 [2026-09-04T18:09:24.240Z] [INFO]: Server running on port 5001
+[2026-09-04T18:11:00.184Z] [INFO]: Database already contains produce data. Skipping seed.
+[2026-09-04T18:11:00.191Z] [INFO]: Server running on port 5001

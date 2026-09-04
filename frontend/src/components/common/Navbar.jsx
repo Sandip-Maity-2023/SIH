@@ -1,12 +1,72 @@
-
-
 import React, { useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
+
+const roleLinks = {
+  FARMER: [
+    ['Dashboard', '/dashboard'],
+    ['My Produce', '/dashboard'],
+    ['Orders', '/orders'],
+    ['Payouts', '/payouts'],
+    ['Schedule', '/schedule'],
+    ['Reports', '/reports'],
+    ['Profile', '/profile'],
+  ],
+  FPO: [
+    ['Dashboard', '/dashboard'],
+    ['My Produce', '/dashboard'],
+    ['Orders', '/orders'],
+    ['Payouts', '/payouts'],
+    ['Schedule', '/schedule'],
+    ['Reports', '/reports'],
+    ['Profile', '/profile'],
+  ],
+  BUYER: [
+    ['Marketplace', '/marketplace'],
+    ['Cart', '/cart'],
+    ['Orders', '/buyer-dashboard'],
+    ['Tracking', '/logistics'],
+    ['Profile', '/profile'],
+  ],
+  CONSUMER: [
+    ['Marketplace', '/marketplace'],
+    ['Cart', '/cart'],
+    ['Orders', '/buyer-dashboard'],
+    ['Tracking', '/logistics'],
+    ['Profile', '/profile'],
+  ],
+  BULK_BUYER: [
+    ['Marketplace', '/marketplace'],
+    ['Cart', '/cart'],
+    ['Orders', '/buyer-dashboard'],
+    ['Tracking', '/logistics'],
+    ['Profile', '/profile'],
+  ],
+  LOGISTICS_PARTNER: [
+    ['Tracking', '/logistics'],
+    ['Schedule', '/schedule'],
+    ['Profile', '/profile'],
+  ],
+  LOGISTICS: [
+    ['Tracking', '/logistics'],
+    ['Schedule', '/schedule'],
+    ['Profile', '/profile'],
+  ],
+  ADMIN: [
+    ['Admin', '/admin'],
+    ['Orders', '/admin/orders'],
+    ['Analytics', '/admin/analytics'],
+    ['Disputes', '/admin/disputes'],
+    ['Settings', '/settings'],
+    ['Profile', '/profile'],
+  ],
+};
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const role = String(user?.role || '').toUpperCase();
+  const links = user ? roleLinks[role] || roleLinks.FARMER : [];
 
   const handleLogout = () => {
     logout();
@@ -14,49 +74,65 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-emerald-800 text-white shadow-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 text-xl font-black tracking-wide">
-            <span className="bg-emerald-500 text-emerald-950 p-1.5 rounded-lg text-sm">🌾</span>
-            AgriDirect
-          </Link>
-
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-6 text-sm font-medium">
-            <Link to="/marketplace" className="hover:text-emerald-300 transition">Marketplace</Link>
-            <Link to="/fpo-dashboard" className="hover:text-emerald-300 transition">FPO Pooling</Link>
-            <Link to="/logistics" className="hover:text-emerald-300 transition">Logistics Tracking</Link>
+    <nav className="sticky top-0 z-50 border-b border-emerald-900 bg-emerald-950 text-white shadow-md">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex min-h-16 flex-col gap-3 py-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center justify-between gap-4">
+            <Link to="/" className="flex items-center gap-2 text-xl font-black tracking-normal">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500 text-sm font-black text-emerald-950">
+                K
+              </span>
+              KRISHI
+            </Link>
+            {user && (
+              <span className="rounded-md bg-emerald-900 px-3 py-1.5 text-xs font-black lg:hidden">
+                {role || 'USER'}
+              </span>
+            )}
           </div>
 
-          {/* User Profile / Auth State */}
-          <div className="flex items-center gap-4 text-sm">
+          <div className="flex flex-wrap items-center gap-3 text-sm font-medium">
+            {links.map(([label, to]) => (
+              <NavLink
+                key={`${label}-${to}`}
+                to={to}
+                className={({ isActive }) =>
+                  `rounded-md px-2.5 py-1.5 transition ${
+                    isActive ? 'bg-emerald-800 text-white' : 'text-emerald-50 hover:bg-emerald-900'
+                  }`
+                }
+              >
+                {label}
+              </NavLink>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-3 text-sm">
             {user ? (
-              <div className="flex items-center gap-3">
-                <span className="hidden sm:inline bg-emerald-700 px-3 py-1 rounded-full text-xs font-semibold">
-                  {user.role?.toUpperCase() || 'USER'}
+              <>
+                <span className="hidden rounded-md bg-emerald-900 px-3 py-1.5 text-xs font-black lg:inline-flex">
+                  {role || 'USER'}
                 </span>
-                <span className="font-semibold">{user.name}</span>
+                <span className="hidden font-semibold sm:inline">{user.name || user.fullName}</span>
                 <button
                   onClick={handleLogout}
-                  className="bg-emerald-700 hover:bg-emerald-600 px-3 py-1.5 rounded-lg transition text-xs font-bold"
+                  className="rounded-md bg-emerald-700 px-3 py-1.5 text-xs font-bold transition hover:bg-emerald-600"
                 >
                   Logout
                 </button>
-              </div>
+              </>
             ) : (
-              <div className="flex gap-2">
-                <Link to="/login" className="px-3 py-1.5 rounded-lg hover:bg-emerald-700 transition">
+              <>
+                <Link to="/login" className="rounded-md px-3 py-1.5 transition hover:bg-emerald-900">
                   Login
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-bold px-3 py-1.5 rounded-lg transition"
+                  className="rounded-md bg-emerald-500 px-3 py-1.5 font-bold text-emerald-950 transition hover:bg-emerald-400"
                 >
                   Register
                 </Link>
-              </div>
+              </>
             )}
           </div>
         </div>
