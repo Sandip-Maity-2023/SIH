@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -20,7 +21,8 @@ const farmIcon = new L.Icon({
 });
 
 const LogisticsMap = () => {
-  const socket = useContext(SocketContext);
+  const socketContext = useContext(SocketContext);
+  const socket = socketContext?.socket;
   const [activeTripId, setActiveTripId] = useState('demo-trip');
   const [driverLocation, setDriverLocation] = useState([20.0063, 73.7898]); // Default: Nashik, MH
   const [routeWaypoints, setRouteWaypoints] = useState([
@@ -28,7 +30,8 @@ const LogisticsMap = () => {
     [20.0200, 73.8000],
     [20.0500, 73.8300],
   ]);
-  const [speed, setSpeed] = useState(0);
+  const [speed, setSpeed] = useState(45);
+  const [isSimulating, setIsSimulating] = useState(false);
 
   useEffect(() => {
     const loadTrip = async () => {
@@ -37,7 +40,7 @@ const LogisticsMap = () => {
         const trip = (data.trips || data.data || [])[0];
         if (!trip) return;
 
-        setActiveTripId(trip._id);
+        if (trip._id) setActiveTripId(trip._id);
         if (trip.currentLocation?.coordinates?.length === 2) {
           setDriverLocation([trip.currentLocation.coordinates[1], trip.currentLocation.coordinates[0]]);
         }
@@ -55,51 +58,6 @@ const LogisticsMap = () => {
 
     loadTrip();
   }, []);
-
-  useEffect(() => {
-    if (!socket) return;
-
-    // Join specific logistics trip channel
-    socket.emit('joinTripRoom', activeTripId);
-
-    // Listen for real-time GPS coordinates streamed from driver's device
-    socket.on('driverLocationUpdate', (data) => {
-      if (data.coordinates) {
-        // [longitude, latitude] -> Leaflet requires [latitude, longitude]
-        const newCoords = [data.coordinates[1], data.coordinates[0]];
-        setDriverLocation(newCoords);
-        if (data.speed) setSpeed(data.speed);
-      }
-    });
-
-    return () => {
-      socket.off('driverLocationUpdate');
-    };
-  }, [socket, activeTripId]);
-
-  return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
-      {/* Top Banner */}
-      <div className="bg-white p-4 shadow-sm border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 px-6">
-        <div>
-          <h1 className="text-xl font-bold text-gray-800">Real-Time Logistics & Trip Tracking</h1>
-          <p className="text-xs text-gray-500">Trip ID: {activeTripId} | Cold-Chain Vehicle Stream</p>
-        </div>
-
-        <div className="flex gap-4 text-xs font-semibold">
-          <div className="bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200 text-emerald-800">
-            Current Speed: <strong>{speed} km/h</strong>
-          </div>
-          <div className="bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200 text-blue-800">
-            GPS Status: <strong>Live Broadcasting</strong>
-          </div>
-        </div>
-      </div>
-
-      {/* Full-screen Leaflet Map */}
-      <div className="flex-1 relative min-h-[500px]">
-        <MapContainer
-          center={driverLocation}
           zoom={13}
           scrollWheelZoom={true}
           className="w-full h-full min-h-[calc(100vh-80px)]"

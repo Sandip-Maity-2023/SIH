@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 
 // Base API configuration
@@ -53,23 +52,23 @@ export const updateUserProfile = (profileData) => API.put('/auth/profile', profi
 /* ==========================================================================
    CROP LOTS & MARKETPLACE API
    ========================================================================== */
-export const getCropLots = (params) => API.get('/crops', { params });
-export const getCropById = (id) => API.get(`/crops/${id}`);
+export const getCropLots = (params) => API.get('/produce', { params });
+export const getCropById = (id) => API.get(`/produce/${id}`);
 export const getCropLotById = getCropById;
-export const createCropLot = (cropData) => API.post('/crops', cropData);
-export const updateCropLot = (id, cropData) => API.put(`/crops/${id}`, cropData);
-export const deleteCropLot = (id) => API.delete(`/crops/${id}`);
+export const createCropLot = (cropData) => API.post('/produce', cropData);
+export const updateCropLot = (id, cropData) => API.put(`/produce/${id}`, cropData);
+export const deleteCropLot = (id) => API.delete(`/produce/${id}`);
 
 /* ==========================================================================
    FPO POOLING & AGGREGATION API
    ========================================================================== */
-export const poolCropLots = (poolData) => API.put('/crops/pool', poolData);
-export const getPooledConsignments = () => API.get('/crops', { params: { isPooled: true } });
+export const poolCropLots = (poolData) => API.put('/produce/pool', poolData);
+export const getPooledConsignments = () => API.get('/produce', { params: { isPooled: true } });
 
 /* ==========================================================================
    ROUTE OPTIMIZATION & LOGISTICS (VRP)
    ========================================================================== */
-export const optimizeRoute = (routeData) => API.post('/ai/optimize-route', routeData);
+export const optimizeRoute = (routeData) => API.post('/logistics/trip', routeData);
 export const getActiveTrips = () => API.get('/logistics/trip');
 export const updateTripLocation = (tripId, locationData) =>
   API.put(`/logistics/trip/${tripId}/location`, locationData);
@@ -78,7 +77,7 @@ export const updateTripLocation = (tripId, locationData) =>
    AI QUALITY ASSESSMENT API
    ========================================================================== */
 export const assessCropQuality = (formData) =>
-  API.post('/ai/grade-quality', formData, {
+  API.post('/produce', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -89,8 +88,8 @@ export const assessCropQuality = (formData) =>
    ========================================================================== */
 export const createOrder = (orderData) => API.post('/orders', orderData);
 export const getUserOrders = () => API.get('/orders');
-export const placeBid = (cropId, bidData) => API.post(`/crops/${cropId}/bids`, bidData);
-export const getMandiPriceForecast = (params) => API.get('/ai/forecast-price', { params });
+export const placeBid = (cropId, bidData) => API.post(`/produce/${cropId}/bids`, bidData);
+export const getMandiPriceForecast = (params) => API.get('/admin/analytics', { params });
 export const releaseEscrow = (orderId, payload) =>
   API.put(`/orders/${orderId}/release-escrow`, payload);
 

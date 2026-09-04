@@ -2,7 +2,8 @@ import React, { useState, useEffect, useContext } from 'react';
 import { SocketContext } from '../../context/SocketContext';
 
 const LiveTracking = ({ shipmentId = 'SHP-9921' }) => {
-  const socket = useContext(SocketContext);
+  const socketContext = useContext(SocketContext);
+  const socket = socketContext?.socket;
   const [telemetry, setTelemetry] = useState({
     locationName: 'NH-19 Near Durgapur Toll Plaza',
     latitude: 23.5204,

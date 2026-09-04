@@ -44,11 +44,19 @@ const roleLinks = {
   ],
   LOGISTICS_PARTNER: [
     ['Tracking', '/logistics'],
+    ['Marketplace', '/marketplace'],
     ['Schedule', '/schedule'],
     ['Profile', '/profile'],
   ],
   LOGISTICS: [
     ['Tracking', '/logistics'],
+    ['Marketplace', '/marketplace'],
+    ['Schedule', '/schedule'],
+    ['Profile', '/profile'],
+  ],
+  DRIVER: [
+    ['Tracking', '/logistics'],
+    ['Marketplace', '/marketplace'],
     ['Schedule', '/schedule'],
     ['Profile', '/profile'],
   ],
@@ -110,10 +118,19 @@ const Navbar = () => {
           <div className="flex items-center gap-3 text-sm">
             {user ? (
               <>
-                <span className="hidden rounded-md bg-emerald-900 px-3 py-1.5 text-xs font-black lg:inline-flex">
+                <Link to="/profile" className="flex items-center gap-2 hover:opacity-90 transition">
+                  {user.avatarUrl ? (
+                    <img src={user.avatarUrl} alt="Avatar" className="h-7 w-7 rounded-full object-cover border border-emerald-400" />
+                  ) : (
+                    <div className="h-7 w-7 rounded-full bg-emerald-500 text-emerald-950 text-xs font-black flex items-center justify-center border border-emerald-400">
+                      {(user.name || user.fullName || 'U').charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <span className="hidden font-semibold sm:inline">{user.name || user.fullName}</span>
+                </Link>
+                <span className="hidden rounded-md bg-emerald-900 px-2.5 py-1 text-[10px] font-black lg:inline-flex">
                   {role || 'USER'}
                 </span>
-                <span className="hidden font-semibold sm:inline">{user.name || user.fullName}</span>
                 <button
                   onClick={handleLogout}
                   className="rounded-md bg-emerald-700 px-3 py-1.5 text-xs font-bold transition hover:bg-emerald-600"
