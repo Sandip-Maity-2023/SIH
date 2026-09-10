@@ -113,7 +113,7 @@ const Navbar = () => {
               </span>
               <div className="flex flex-col leading-none">
                 <span className="text-2xl font-black tracking-tight text-white">
-                  KRISHI <span className="text-[#1DB954]">AGRI</span>
+                  Kisan <span className="text-[#1DB954]">SetuAI</span>
                 </span>
                 <span className="text-[10px] font-black tracking-widest text-emerald-200 uppercase mt-0.5">
                   Seedhe Kisan Se
