@@ -1,51 +1,20 @@
-import React, { useState } from 'react';
-import { Calendar, Truck, Clock, MapPin, CheckCircle, Navigation } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Calendar, Truck, Clock, MapPin, CheckCircle, Navigation, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
-const initialSchedules = [
-  {
-    id: 'SCH-1001',
-    origin: 'Singur Farm Cluster (Hooghly, WB)',
-    destination: 'Kolkata Wholesale Mandi',
-    departureTime: '2026-09-06T06:00',
-    vehicleType: 'Refrigerated Truck (10 Ton)',
-    driverName: 'Ramesh Kumar',
-    status: 'Scheduled',
-    cargoWeight: '7.5 Tons (Potatoes & Tomatoes)',
-    tempControl: '4°C Cold Storage',
-    notes: 'Morning priority dispatch for early mandi auction.',
-  },
-  {
-    id: 'SCH-1002',
-    origin: 'Nashik Farmer Hub (MH)',
-    destination: 'Vashi APMC Mandi Navi Mumbai',
-    departureTime: '2026-09-05T20:00',
-    vehicleType: 'Covered Container (5 Ton)',
-    driverName: 'Suresh Patil',
-    status: 'In-Transit',
-    cargoWeight: '4.2 Tons (Onions)',
-    tempControl: 'Ambient Dry Storage',
-    notes: 'GPS broadcasting enabled.',
-  },
-  {
-    id: 'SCH-1003',
-    origin: 'Sonipat Agri Hub (HR)',
-    destination: 'Azadpur Mandi Delhi',
-    departureTime: '2026-09-04T05:30',
-    vehicleType: 'Open Pickup (2 Ton)',
-    driverName: 'Vikram Singh',
-    status: 'Completed',
-    cargoWeight: '1.8 Tons (Leafy Greens)',
-    tempControl: 'Misting System',
-    notes: 'Successfully delivered and signed off.',
-  },
-];
+import {
+  getDispatchSchedules,
+  createDispatchSchedule,
+  updateDispatchScheduleStatus,
+} from '../../services/api';
 
 const RouteScheduler = ({ onRouteScheduled }) => {
   const navigate = useNavigate();
-  const [schedules, setSchedules] = useState(initialSchedules);
+  const [schedules, setSchedules] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState('All'); // 'All' | 'Scheduled' | 'In-Transit' | 'Completed'
   const [successMsg, setSuccessMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
   const [schedule, setSchedule] = useState({
     origin: '',
@@ -58,48 +27,90 @@ const RouteScheduler = ({ onRouteScheduled }) => {
     notes: '',
   });
 
+  const fetchSchedules = async () => {
+    try {
+      setLoading(true);
+      const { data } = await getDispatchSchedules();
+      const list = (data?.data || []).map((item) => ({
+        ...item,
+        id: item.scheduleId || item.id || item._id,
+      }));
+      setSchedules(list);
+    } catch (err) {
+      console.error('Failed to load dispatch schedules from database:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSchedules();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setSchedule((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const newSch = {
-      id: `SCH-${1000 + schedules.length + 1}`,
-      origin: schedule.origin,
-      destination: schedule.destination,
-      departureTime: schedule.departureTime || new Date().toISOString().slice(0, 16),
-      vehicleType: schedule.vehicleType,
-      driverName: schedule.driverName || 'Assigned Driver',
-      status: 'Scheduled',
-      cargoWeight: schedule.cargoWeight || 'Standard Payload',
-      tempControl: schedule.tempControl,
-      notes: schedule.notes || 'N/A',
-    };
+    try {
+      setSubmitting(true);
+      setErrorMsg('');
 
-    setSchedules([newSch, ...schedules]);
-    if (onRouteScheduled) onRouteScheduled(newSch);
+      const payload = {
+        origin: schedule.origin,
+        destination: schedule.destination,
+        departureTime: schedule.departureTime || new Date().toISOString(),
+        vehicleType: schedule.vehicleType,
+        driverName: schedule.driverName || 'Assigned Driver',
+        cargoWeight: schedule.cargoWeight || 'Standard Payload',
+        tempControl: schedule.tempControl,
+        notes: schedule.notes || '',
+      };
 
-    setSuccessMsg(`Dispatch schedule ${newSch.id} created successfully!`);
-    setTimeout(() => setSuccessMsg(''), 5000);
+      const { data } = await createDispatchSchedule(payload);
+      const createdItem = {
+        ...(data?.data || {}),
+        id: data?.data?.scheduleId || data?.data?._id || `SCH-${Date.now()}`,
+      };
 
-    setSchedule({
-      origin: '',
-      destination: '',
-      departureTime: '',
-      vehicleType: 'Refrigerated Truck (10 Ton)',
-      driverName: '',
-      cargoWeight: '',
-      tempControl: '4°C Cold Storage',
-      notes: '',
-    });
+      setSchedules((prev) => [createdItem, ...prev]);
+      if (onRouteScheduled) onRouteScheduled(createdItem);
+
+      setSuccessMsg(`Dispatch schedule ${createdItem.id || createdItem.scheduleId} created and saved successfully!`);
+      setTimeout(() => setSuccessMsg(''), 5000);
+
+      setSchedule({
+        origin: '',
+        destination: '',
+        departureTime: '',
+        vehicleType: 'Refrigerated Truck (10 Ton)',
+        driverName: '',
+        cargoWeight: '',
+        tempControl: '4°C Cold Storage',
+        notes: '',
+      });
+    } catch (err) {
+      setErrorMsg(err.response?.data?.message || 'Failed to create dispatch schedule.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const updateStatus = (id, newStatus) => {
-    setSchedules((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, status: newStatus } : item))
-    );
+  const updateStatus = async (id, newStatus) => {
+    try {
+      await updateDispatchScheduleStatus(id, newStatus);
+      setSchedules((prev) =>
+        prev.map((item) => (item.id === id || item.scheduleId === id ? { ...item, status: newStatus } : item))
+      );
+    } catch (err) {
+      console.error('Failed to update trip status:', err);
+      // Fallback local update
+      setSchedules((prev) =>
+        prev.map((item) => (item.id === id || item.scheduleId === id ? { ...item, status: newStatus } : item))
+      );
+    }
   };
 
   const filteredSchedules = schedules.filter((item) =>
@@ -255,11 +266,24 @@ const RouteScheduler = ({ onRouteScheduled }) => {
                 />
               </div>
 
+              {errorMsg && (
+                <div className="p-2.5 rounded-md bg-red-50 border border-red-200 text-red-700 text-xs font-semibold">
+                  {errorMsg}
+                </div>
+              )}
+
               <button
                 type="submit"
-                className="w-full py-2.5 bg-emerald-800 text-white font-black rounded text-xs hover:bg-emerald-900 transition shadow-sm"
+                disabled={submitting}
+                className="w-full py-2.5 bg-emerald-800 text-white font-black rounded text-xs hover:bg-emerald-900 transition shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                + Schedule Dispatch Trip
+                {submitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" /> Saving Schedule...
+                  </>
+                ) : (
+                  '+ Schedule Dispatch Trip'
+                )}
               </button>
             </form>
           </div>
@@ -271,7 +295,12 @@ const RouteScheduler = ({ onRouteScheduled }) => {
               <span className="text-xs text-slate-500 font-medium">Real-Time Dispatch Monitoring</span>
             </h2>
 
-            {filteredSchedules.length === 0 ? (
+            {loading ? (
+              <div className="p-12 text-center bg-white border rounded-lg text-slate-500 text-xs flex flex-col items-center justify-center gap-2">
+                <Loader2 className="h-6 w-6 animate-spin text-emerald-700" />
+                <span>Loading dispatch schedules from database...</span>
+              </div>
+            ) : filteredSchedules.length === 0 ? (
               <div className="p-8 text-center bg-white border border-dashed rounded-lg text-slate-500 text-xs">
                 No dispatch schedules found for "{activeTab}".
               </div>

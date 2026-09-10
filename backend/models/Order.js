@@ -65,7 +65,7 @@ const orderSchema = new mongoose.Schema(
     deliveryAddress: {
       street: { type: String, required: true },
       city: { type: String, required: true },
-      district: { type: String, required: true },
+      district: { type: String, default: '' },
       state: { type: String, required: true },
       pincode: { type: String, required: true },
       location: {
@@ -76,7 +76,7 @@ const orderSchema = new mongoose.Schema(
         },
         coordinates: {
           type: [Number], // [longitude, latitude]
-          required: true,
+          default: [0, 0],
         },
       },
     },
@@ -123,6 +123,6 @@ const orderSchema = new mongoose.Schema(
 // Indexes
 orderSchema.index({ buyerId: 1, orderStatus: 1 });
 orderSchema.index({ 'items.farmerId': 1 });
-orderSchema.index({ 'deliveryAddress.location': '2dsphere' });
+orderSchema.index({ 'deliveryAddress.location': '2dsphere' }, { sparse: true });
 
 export default mongoose.model('Order', orderSchema);

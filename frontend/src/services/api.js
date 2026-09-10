@@ -72,6 +72,10 @@ export const optimizeRoute = (routeData) => API.post('/logistics/trip', routeDat
 export const getActiveTrips = () => API.get('/logistics/trip');
 export const updateTripLocation = (tripId, locationData) =>
   API.put(`/logistics/trip/${tripId}/location`, locationData);
+export const getDispatchSchedules = () => API.get('/logistics/schedules');
+export const createDispatchSchedule = (scheduleData) => API.post('/logistics/schedules', scheduleData);
+export const updateDispatchScheduleStatus = (id, status) =>
+  API.patch(`/logistics/schedules/${id}/status`, { status });
 
 /* ==========================================================================
    AI QUALITY ASSESSMENT API

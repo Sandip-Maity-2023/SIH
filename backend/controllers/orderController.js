@@ -99,6 +99,28 @@
 import Order from '../models/Order.js';
 import Produce from '../models/Produce.js';
 
+// Safe delivery address formatter to ensure location.coordinates never causes validation errors
+const formatDeliveryAddress = (addr) => {
+  if (!addr) return addr;
+  const coords = Array.isArray(addr.coordinates)
+    ? addr.coordinates
+    : Array.isArray(addr.location?.coordinates)
+    ? addr.location.coordinates
+    : [0, 0];
+
+  return {
+    street: addr.street || '',
+    city: addr.city || '',
+    district: addr.district || '',
+    state: addr.state || '',
+    pincode: addr.pincode || '',
+    location: {
+      type: 'Point',
+      coordinates: [Number(coords[0]) || 0, Number(coords[1]) || 0],
+    },
+  };
+};
+
 // @desc    Place a new purchase order with Escrow locking
 // @route   POST /api/orders
 export const createOrder = async (req, res) => {
@@ -121,11 +143,13 @@ export const createOrder = async (req, res) => {
     }
 
     // 2. Create Order with Escrow Locked status
+    const formattedAddress = formatDeliveryAddress(deliveryAddress);
+
     const order = await Order.create({
       buyerId: req.user.id,
       items,
       totalAmount,
-      deliveryAddress,
+      deliveryAddress: formattedAddress,
       paymentDetails: {
         escrowStatus: 'LOCKED_IN_ESCROW',
         transactionReference,
@@ -248,7 +272,7 @@ export const verifyRazorpayPayment = async (req, res) => {
       buyerId: req.user.id,
       items: items || [],
       totalAmount: totalAmount || 0,
-      deliveryAddress,
+      deliveryAddress: formatDeliveryAddress(deliveryAddress),
       paymentDetails: {
         escrowStatus: 'LOCKED_IN_ESCROW',
         transactionReference: razorpay_payment_id || `RZP_${Date.now()}`,

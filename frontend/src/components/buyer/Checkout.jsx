@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { CartContext } from '../../context/CartContext';
 import { createOrder } from '../../services/api';
 import API from '../../services/api';
-import { ShieldCheck, CreditCard, CheckCircle2, Lock } from 'lucide-react';
+import { ShieldCheck, CreditCard, CheckCircle2, Lock, MapPin, Crosshair, Check, Loader2 } from 'lucide-react';
 
 const Checkout = () => {
   const { cartItems, subtotal, clearCart } = useContext(CartContext);
@@ -15,6 +15,9 @@ const Checkout = () => {
     state: '',
     pincode: '',
   });
+  const [coordinates, setCoordinates] = useState(null); // [longitude, latitude]
+  const [locating, setLocating] = useState(false);
+  const [gpsStatus, setGpsStatus] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('razorpay'); // 'razorpay' | 'escrow'
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -24,6 +27,31 @@ const Checkout = () => {
   const platformFee = cartItems.length ? 100 : 0;
   const discount = cartItems.length && subtotal > 1000 ? 200 : 0;
   const totalAmount = subtotal + deliveryCharges + platformFee - discount;
+
+  // Browser Geolocation Detector
+  const detectLocation = () => {
+    if (!navigator.geolocation) {
+      setGpsStatus('Geolocation not supported by this browser.');
+      return;
+    }
+    setLocating(true);
+    setGpsStatus('Fetching browser GPS coordinates...');
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lng = Number(pos.coords.longitude.toFixed(6));
+        const lat = Number(pos.coords.latitude.toFixed(6));
+        setCoordinates([lng, lat]);
+        setLocating(false);
+        setGpsStatus(`GPS detected: ${lat}, ${lng}`);
+      },
+      (err) => {
+        console.warn('Geolocation access error:', err.message);
+        setLocating(false);
+        setGpsStatus('Could not retrieve browser GPS. Standard address used.');
+      },
+      { timeout: 10000, maximumAge: 60000, enableHighAccuracy: true }
+    );
+  };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -58,7 +86,10 @@ const Checkout = () => {
             razorpay_signature: response.razorpay_signature || `sig_${Date.now()}`,
             items,
             totalAmount,
-            deliveryAddress: shippingInfo,
+            deliveryAddress: {
+              ...shippingInfo,
+              coordinates: coordinates || [0, 0],
+            },
           });
           clearCart();
           navigate('/buyer-dashboard');
@@ -117,7 +148,10 @@ const Checkout = () => {
       setError('');
       await createOrder({
         items,
-        deliveryAddress: shippingInfo,
+        deliveryAddress: {
+          ...shippingInfo,
+          coordinates: coordinates || [0, 0],
+        },
         totalAmount,
         transactionReference: `KR-ESCROW-${Date.now()}`,
       });
@@ -148,7 +182,37 @@ const Checkout = () => {
           )}
 
           <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm space-y-4">
-            <h2 className="text-lg font-black text-slate-950">Delivery Address</h2>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-lg font-black text-slate-950">Delivery Address</h2>
+              <button
+                type="button"
+                onClick={detectLocation}
+                disabled={locating}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition border border-emerald-300 disabled:opacity-50"
+              >
+                {locating ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" /> Detecting GPS...
+                  </>
+                ) : coordinates ? (
+                  <>
+                    <Check className="h-3.5 w-3.5 text-emerald-700" /> GPS Location Attached
+                  </>
+                ) : (
+                  <>
+                    <Crosshair className="h-3.5 w-3.5" /> Use Current GPS Location
+                  </>
+                )}
+              </button>
+            </div>
+
+            {gpsStatus && (
+              <div className="text-xs text-emerald-700 font-semibold flex items-center gap-1.5 bg-emerald-50 p-2 rounded border border-emerald-200">
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <span>{gpsStatus}</span>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <input name="street" required value={shippingInfo.street} onChange={handleChange} placeholder="Street / warehouse address" className="h-11 rounded-md border border-slate-300 px-3 text-sm md:col-span-2" />
               <input name="city" required value={shippingInfo.city} onChange={handleChange} placeholder="City" className="h-11 rounded-md border border-slate-300 px-3 text-sm" />

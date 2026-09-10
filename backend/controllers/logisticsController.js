@@ -116,6 +116,7 @@
 // };
 import Vehicle from '../models/Vehicle.js';
 import Order from '../models/Order.js';
+import DispatchSchedule from '../models/DispatchSchedule.js';
 
 // @desc    Get active logistics trips
 // @route   GET /api/logistics/trip
@@ -223,6 +224,159 @@ export const completeWaypoint = async (req, res, next) => {
       success: true,
       message: 'Waypoint completed and order status updated to IN_TRANSIT',
       data: order,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Seed initial default schedules if DB collection is empty
+const initialSeedSchedules = [
+  {
+    scheduleId: 'SCH-1001',
+    origin: 'Singur Farm Cluster (Hooghly, WB)',
+    destination: 'Kolkata Wholesale Mandi',
+    departureTime: '2026-09-06T06:00',
+    vehicleType: 'Refrigerated Truck (10 Ton)',
+    driverName: 'Ramesh Kumar',
+    status: 'Scheduled',
+    cargoWeight: '7.5 Tons (Potatoes & Tomatoes)',
+    tempControl: '4°C Cold Storage',
+    notes: 'Morning priority dispatch for early mandi auction.',
+  },
+  {
+    scheduleId: 'SCH-1002',
+    origin: 'Nashik Farmer Hub (MH)',
+    destination: 'Vashi APMC Mandi Navi Mumbai',
+    departureTime: '2026-09-05T20:00',
+    vehicleType: 'Covered Container (5 Ton)',
+    driverName: 'Suresh Patil',
+    status: 'In-Transit',
+    cargoWeight: '4.2 Tons (Onions)',
+    tempControl: 'Ambient Dry Storage',
+    notes: 'GPS broadcasting enabled.',
+  },
+  {
+    scheduleId: 'SCH-1003',
+    origin: 'Sonipat Agri Hub (HR)',
+    destination: 'Azadpur Mandi Delhi',
+    departureTime: '2026-09-04T05:30',
+    vehicleType: 'Open Pickup (2 Ton)',
+    driverName: 'Vikram Singh',
+    status: 'Completed',
+    cargoWeight: '1.8 Tons (Leafy Greens)',
+    tempControl: 'Misting System',
+    notes: 'Successfully delivered and signed off.',
+  },
+];
+
+// @desc    Get all dispatch schedules
+// @route   GET /api/logistics/schedules
+// @access  Private (Driver, Logistics, FPO, Admin)
+export const getDispatchSchedules = async (req, res, next) => {
+  try {
+    let schedules = await DispatchSchedule.find().sort({ createdAt: -1 });
+
+    if (schedules.length === 0) {
+      // Seed default initial schedules on first run
+      await DispatchSchedule.insertMany(initialSeedSchedules);
+      schedules = await DispatchSchedule.find().sort({ createdAt: -1 });
+    }
+
+    res.status(200).json({
+      success: true,
+      count: schedules.length,
+      data: schedules,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Create a dispatch schedule
+// @route   POST /api/logistics/schedules
+// @access  Private (Driver, Logistics, FPO, Admin)
+export const createDispatchSchedule = async (req, res, next) => {
+  try {
+    const {
+      origin,
+      destination,
+      departureTime,
+      vehicleType,
+      driverName,
+      cargoWeight,
+      tempControl,
+      notes,
+    } = req.body;
+
+    if (!origin || !destination) {
+      return res.status(400).json({
+        success: false,
+        message: 'Origin and destination are required.',
+      });
+    }
+
+    const count = await DispatchSchedule.countDocuments();
+    const scheduleId = `SCH-${1000 + count + 1}`;
+
+    const newSchedule = await DispatchSchedule.create({
+      scheduleId,
+      driverId: req.user?.id || null,
+      driverName: driverName || req.user?.name || 'Assigned Driver',
+      origin,
+      destination,
+      departureTime: departureTime || new Date().toISOString(),
+      vehicleType: vehicleType || 'Refrigerated Truck (10 Ton)',
+      cargoWeight: cargoWeight || 'Standard Payload',
+      tempControl: tempControl || '4°C Cold Storage',
+      notes: notes || '',
+      status: 'Scheduled',
+      createdBy: req.user?.id || null,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Dispatch schedule created successfully in database',
+      data: newSchedule,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update dispatch schedule status
+// @route   PATCH /api/logistics/schedules/:id/status
+// @access  Private (Driver, Logistics, FPO, Admin)
+export const updateDispatchScheduleStatus = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!['Scheduled', 'In-Transit', 'Completed'].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid schedule status. Must be Scheduled, In-Transit, or Completed.',
+      });
+    }
+
+    const schedule = await DispatchSchedule.findOne({
+      $or: [{ _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null }, { scheduleId: id }],
+    });
+
+    if (!schedule) {
+      return res.status(404).json({
+        success: false,
+        message: 'Dispatch schedule not found.',
+      });
+    }
+
+    schedule.status = status;
+    await schedule.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Schedule status updated to ${status}`,
+      data: schedule,
     });
   } catch (error) {
     next(error);
