@@ -109,4 +109,16 @@ export const uploadFile = async (file) => {
   return data.url || data.path;
 };
 
+/* ==========================================================================
+   AI GEMINI CHATBOT API
+   ========================================================================== */
+export const sendChatMessage = async (message, history = [], customApiKey = '') => {
+  const { data } = await API.post('/chat', {
+    message,
+    history,
+    customApiKey: customApiKey || undefined,
+  });
+  return data;
+};
+
 export default API;

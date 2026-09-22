@@ -153,6 +153,7 @@ import payoutRoutes from './routes/payoutRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import escrowRoutes from './routes/escrowRoutes.js'; // Added Blockchain Escrow Route
+import chatRoutes from './routes/chatRoutes.js'; // Added Gemini Chat Route
 
 // Load environment variables
 dotenv.config();
@@ -210,6 +211,7 @@ app.use('/api/payouts', payoutRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/escrow', escrowRoutes); // Mounted Escrow Endpoints
+app.use('/api/chat', chatRoutes); // Mounted Gemini AI Chat Endpoint
 
 // 6. Central Error Handler Middleware (Must be registered after routes)
 app.use(errorHandler);

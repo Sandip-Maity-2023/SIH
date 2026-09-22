@@ -218,6 +218,7 @@ import { SocketProvider } from './context/SocketContext';
 // Navigation Components
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
+import FloatingRobot from './components/common/FloatingRobot';
 
 // Page Views
 import HomePage from './pages/HomePage';
@@ -445,6 +446,8 @@ function AppRoutes() {
         </Routes>
       </main>
       <Footer />
+      {/* Floating Gemini AI Robot in bottom-right section */}
+      <FloatingRobot />
     </div>
   );
 }
