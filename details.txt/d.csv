@@ -4,6 +4,7 @@ npm init -y: Initializes a new Node.js project and generates a package.json file
 npm install express mongoose dotenv cors: Installs the fundamental backend libraries.
  npm install react-router-dom
  npm install passport passport-jwt
+ npm install lucide-react
  
  krishi-marketplace/
 ├── backend/
