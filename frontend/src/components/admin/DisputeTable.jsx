@@ -7,7 +7,9 @@ const Dispute = () => {
   const fetchDisputes = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/disputes');
+      //const response = await fetch('/api/disputes');
+      const response = await fetch(`${process.env.VITE_API_URL}/disputes`);
+
       if (!response.ok) throw new Error('Failed to load disputes');
       const data = await response.json();
       setDisputes(Array.isArray(data) ? data : data.data || []);
@@ -94,9 +96,8 @@ const Dispute = () => {
                 <td className="p-3 text-gray-600">{dispute.reason}</td>
                 <td className="p-3 font-semibold text-emerald-700">{dispute.amountInDispute}</td>
                 <td className="p-3">
-                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                    dispute.status === 'Pending' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'
-                  }`}>
+                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${dispute.status === 'Pending' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'
+                    }`}>
                     {dispute.status}
                   </span>
                 </td>

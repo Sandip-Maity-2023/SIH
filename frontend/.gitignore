@@ -24,3 +24,8 @@ dist-ssr
 *.sw?
 
 .env
+
+frontend/.env
+frontend/node_modules/
+frontend/dist/
+

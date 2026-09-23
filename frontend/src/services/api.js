@@ -2,9 +2,9 @@ import axios from 'axios';
 
 // Base API configuration
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  import.meta.env.REACT_APP_API_URL ||
-  'http://localhost:5001/api';
+  import.meta.env.VITE_API_URL; //||
+//import.meta.env.REACT_APP_API_URL ||
+//'http://localhost:5001/api';
 
 const API = axios.create({
   baseURL: API_BASE_URL,

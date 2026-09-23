@@ -12,7 +12,8 @@ const FPODashboard = () => {
   const fetchUnpooledLots = useCallback(async () => {
     try {
       setLoading(true);
-      const { data } = await getCropLots({ isPooled: false });
+      //const { data } = await getCropLots({ isPooled: false });
+      const { data } = await fetch(`${process.env.VITE_API_URL}/produce`);
       setIndividualLots(data.crops || data.data || []);
     } catch (err) {
       console.error('Error fetching unpooled lots:', err);
@@ -110,9 +111,8 @@ const FPODashboard = () => {
                 {individualLots.map((lot) => (
                   <label
                     key={lot._id}
-                    className={`flex items-center justify-between p-4 cursor-pointer hover:bg-emerald-50/50 transition ${
-                      selectedLotIds.includes(lot._id) ? 'bg-emerald-50' : ''
-                    }`}
+                    className={`flex items-center justify-between p-4 cursor-pointer hover:bg-emerald-50/50 transition ${selectedLotIds.includes(lot._id) ? 'bg-emerald-50' : ''
+                      }`}
                   >
                     <div className="flex items-center gap-3">
                       <input

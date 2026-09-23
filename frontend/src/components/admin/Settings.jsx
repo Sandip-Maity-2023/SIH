@@ -16,7 +16,8 @@ const Setting = () => {
       try {
         setLoading(true);
         // Replace with your API endpoint e.g., /api/admin/settings
-        const response = await fetch('/api/admin/settings');
+        //const response = await fetch('/api/admin/settings');
+        const response = await fetch(`${process.env.VITE_API_URL}/admin/settings`);
         if (response.ok) {
           const data = await response.json();
           setSettings(data);
@@ -43,7 +44,8 @@ const Setting = () => {
     e.preventDefault();
     setSaving(true);
     try {
-      const response = await fetch('/api/admin/settings', {
+      //const response = await fetch('/api/admin/settings', {
+      const response = await fetch(`${process.env.VITE_API_URL}/admin/settings`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings),

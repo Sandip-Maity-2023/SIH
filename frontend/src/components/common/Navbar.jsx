@@ -36,7 +36,7 @@ const roleLinks = {
   FARMER: [
     ["Dashboard", "/dashboard", LayoutDashboard],
     ["My Produce", "/dashboard", Package],
-    ["Orders", "/orders", ShoppingCart],
+    ["Orders", "/buyer-dashboard", ShoppingCart],
     ["Payouts", "/payouts", Wallet],
     ["Schedule", "/schedule", CalendarDays],
     ["Reports", "/reports", BarChart3],
@@ -339,10 +339,9 @@ const Navbar = () => {
                 to={to}
                 end={label === "Dashboard" || label === "Marketplace"}
                 className={({ isActive }) =>
-                  `group flex shrink-0 items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-bold whitespace-nowrap transition-all duration-200 ${
-                    isActive
-                      ? "bg-emerald-600 text-white shadow-md shadow-emerald-950/30"
-                      : "text-slate-300 hover:bg-emerald-900/80 hover:text-emerald-300"
+                  `group flex shrink-0 items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-bold whitespace-nowrap transition-all duration-200 ${isActive
+                    ? "bg-emerald-600 text-white shadow-md shadow-emerald-950/30"
+                    : "text-slate-300 hover:bg-emerald-900/80 hover:text-emerald-300"
                   }`
                 }
               >
@@ -452,10 +451,9 @@ const Navbar = () => {
                   end={label === "Dashboard" || label === "Marketplace"}
                   onClick={closeMobileMenu}
                   className={({ isActive }) =>
-                    `flex items-center gap-2 rounded-xl px-3 py-3 text-xs font-bold transition ${
-                      isActive
-                        ? "bg-emerald-600 text-white"
-                        : "bg-slate-900 text-slate-300 hover:bg-emerald-900 hover:text-white"
+                    `flex items-center gap-2 rounded-xl px-3 py-3 text-xs font-bold transition ${isActive
+                      ? "bg-emerald-600 text-white"
+                      : "bg-slate-900 text-slate-300 hover:bg-emerald-900 hover:text-white"
                     }`
                   }
                 >

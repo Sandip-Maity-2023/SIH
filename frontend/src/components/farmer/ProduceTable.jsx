@@ -7,7 +7,9 @@ const ProduceTable = () => {
   const fetchFarmerProduces = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/produce');
+      //const response = await fetch('/api/produce');
+      const response = await fetch(`${process.env.VITE_API_URL}/produce`);
+
       if (!response.ok) throw new Error('Failed to fetch listings');
       const data = await response.json();
       setProduces(Array.isArray(data) ? data : data.data || []);
@@ -59,9 +61,8 @@ const ProduceTable = () => {
               <td className="px-4 py-3 text-sm">{item.quantity} {item.unit}</td>
               <td className="px-4 py-3 font-bold text-emerald-700">₹{item.pricePerUnit}</td>
               <td className="px-4 py-3">
-                <span className={`inline-block px-2 py-0.5 text-xs font-semibold rounded ${
-                  item.status === 'Available' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                }`}>
+                <span className={`inline-block px-2 py-0.5 text-xs font-semibold rounded ${item.status === 'Available' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
                   {item.status}
                 </span>
               </td>

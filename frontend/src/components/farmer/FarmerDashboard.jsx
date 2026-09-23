@@ -98,7 +98,7 @@ const FarmerDashboard = () => {
         <div className="flex flex-wrap gap-2 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
           {[
             ['My Produce', '/dashboard'],
-            ['Orders', '/orders'],
+            ['Orders', '/buyer-dashboard'],
             ['Payouts', '/payouts'],
             ['Schedule', '/schedule'],
             ['Reports', '/reports'],
