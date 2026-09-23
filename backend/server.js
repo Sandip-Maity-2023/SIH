@@ -246,10 +246,21 @@ const startServer = async () => {
   });
 };
 
-startServer().catch((error) => {
-  logger.error('Server startup failed:', error.message);
-  process.exit(1);
-});
+// Start HTTP server for standard node environments (local dev, Render, Railway, etc.)
+// In Vercel serverless environment, VERCEL is defined and Vercel invokes the exported app directly.
+if (!process.env.VERCEL) {
+  startServer().catch((error) => {
+    logger.error('Server startup failed:', error.message);
+    process.exit(1);
+  });
+} else {
+  // Ensure database connects on cold start in Vercel Serverless environment
+  connectDB().catch((err) => {
+    logger.error('Database connection error in Vercel environment:', err.message);
+  });
+}
+
+export default app;
 
 
 
